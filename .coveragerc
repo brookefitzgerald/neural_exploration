@@ -1,0 +1,5 @@
+[run]
+include = neural_exploration/*
+omit = *migrations*, *tests*
+plugins =
+    django_coverage_plugin
