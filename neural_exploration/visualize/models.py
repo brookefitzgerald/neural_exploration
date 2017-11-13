@@ -5,13 +5,13 @@ from django.db import models
 
 class Experiment(models.Model):
     """Information about each experiment"""
-    id = models.CharField(unique=True)
+    slug = models.CharField(max_length=30, unique=True)
     name = models.TextField()
     description = models.TextField()
     index_stimulus_shown = models.IntegerField()
 
     def __str__(self):
-        return self.experiment_name
+        return self.name
 
 
 class Site(models.Model):
@@ -20,12 +20,10 @@ class Site(models.Model):
         Experiment,
         on_delete=models.CASCADE
     )
-    id = models.CharField(30)
-    information_variable = models.CharField(30)
-    information_value = models.CharField(30)
+    slug = models.CharField(max_length=30)
 
     def __str__(self):
-        return self.experiment.id + '-' + self.id
+        return str(self.experiment.slug + '-' + self.slug)
 
 
 class Metadata(models.Model):
@@ -34,11 +32,11 @@ class Metadata(models.Model):
         Site,
         on_delete=models.CASCADE
     )
-    information_variable = models.CharField(30)
-    information_value = models.CharField(30)
+    information_variable = models.CharField(max_length=30)
+    information_value = models.CharField(max_length=30)
 
     def __str__(self):
-        return str(self.site) + self.information_variable
+        return str(str(self.site) + self.information_variable)
 
 
 class Data(models.Model):
@@ -52,24 +50,24 @@ class Data(models.Model):
         on_delete=models.CASCADE
     )
     trial_number = models.IntegerField()
-    label_1 = models.CharField(30)
-    label_2 = models.CharField(30, null=True, blank=True)  # blank=true
-    label_3 = models.CharField(30, null=True, blank=True)  # blank=true
-    label_4 = models.CharField(30, null=True, blank=True)  # blank=true
-    data = ArrayField(models.DecimalField())
+    label_one = models.CharField(max_length=30)
+    label_two = models.CharField(max_length=30, null=True, blank=True)
+    label_three = models.CharField(max_length=30, null=True, blank=True)
+    label_four = models.CharField(max_length=30, null=True, blank=True)
+    data = ArrayField(models.DecimalField(max_digits=15, decimal_places=10))
 
     def __str__(self):
-        return str(self.site) + '-' + self.trial_number
+        return str(str(self.site) + '-' + str(self.trial_number))
 
     def filter_by_label(self, experiment, input_label, label_number=1):
         if label_number == 1:
-            stimuli = self.objects.filter(label_1=input_label)
+            stimuli = self.objects.filter(label_one=input_label)
         elif label_number == 2:
-            stimuli = self.objects.filter(label_2=input_label)
+            stimuli = self.objects.filter(label_two=input_label)
         elif label_number == 3:
-            stimuli = self.objects.filter(label_3=input_label)
+            stimuli = self.objects.filter(label_three=input_label)
         elif label_number == 4:
-            stimuli = self.objects.filter(label_4=input_label)
+            stimuli = self.objects.filter(label_four=input_label)
         else:
             raise FieldDoesNotExist()
         return stimuli
