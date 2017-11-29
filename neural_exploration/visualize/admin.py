@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Data, Experiment, Site, Metadata
 
-# Register your models here.
+admin.site.register(Data)
+admin.site.register(Experiment)
+admin.site.register(Site)
+admin.site.register(Metadata)
