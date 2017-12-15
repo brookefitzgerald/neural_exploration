@@ -35,8 +35,11 @@ class Metadata(models.Model):
     information_variable = models.CharField(max_length=30)
     information_value = models.CharField(max_length=30)
 
+    class Meta:
+        verbose_name_plural = "metadata"
+
     def __str__(self):
-        return str(str(self.site) + self.information_variable)
+        return str(str(self.site) + '-' + self.information_variable)
 
 
 class Data(models.Model):
@@ -55,6 +58,9 @@ class Data(models.Model):
     label_three = models.CharField(max_length=30, null=True, blank=True)
     label_four = models.CharField(max_length=30, null=True, blank=True)
     data = ArrayField(models.DecimalField(max_digits=15, decimal_places=10))
+
+    class Meta:
+        verbose_name_plural = "data"
 
     def __str__(self):
         return str(str(self.site) + '-' + str(self.trial_number))
