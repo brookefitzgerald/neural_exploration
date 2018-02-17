@@ -1,40 +1,121 @@
 {% extends "base.html" %}
 {% load static %}
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-
-<script src="{% static 'js/project.js' %}"></script>
-
 {% block content %}
 
+<style>
+.ticks {
+	font: 10px sans-serif;
+}
 
-<div class="container">
-    <div id="text">
-    </div>
-    <svg width="960" height="500">
-    </svg>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script text="javascript">
-    	var h=500,
-    		w=960,
-    		margin=10;
-    	var dataset = {{experiment|safe}};
-    	var data = dataset.data.map(Number);
-		var viz = d3.select("svg")
-	    .selectAll("circle")
-	    .data(data)
-	    .enter()
-	    .append("circle")
-	    .attr("r", 2)
-	    .attr("cx", function(d,i){return (w-margin)/1000*i})
-	    .attr("cy", function(d){return h-margin-50*d});
+.track,
+.track-inset,
+.track-overlay {
+	stroke-linecap: round;
+}
 
-    </script>
-    <p>{{experiment|safe}}</p>
-    <p>{{experiment.name|safe}}</p>
-    
-</div>
+.track {
+	stroke: #000;
+	stroke-opacity: 0.3;
+	stroke-width: 10px;
+}
+
+.track-inset {
+	stroke: #ddd;
+	stroke-width: 8px;
+}
+
+.track-overlay {
+	pointer-events: stroke;
+	stroke-width: 50px;
+	stroke: transparent;
+	cursor: crosshair;
+}
+
+.sliderhandle {
+	fill: #fff;
+	stroke: #000;
+	stroke-opacity: 0.5;
+	stroke-width: 1.25px;
+}
+
+
+</style>
+<body>
+	<div class="container" id="container">
+		<div id='sections'>
+			<div height="500px" width="200px">Section 0</div>
+			<div height="500px" width="200px">Section 1</div>
+			<div height="500px" width="200px">Section 2</div>
+		</div>
+	</div>
+</body>
 {% endblock content %}
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="{% static 'js/graph-scroll.js' %}"></script>
+<script src="{% static 'js/scrolling.js' %}"></script>
+<script text="javascript">
+	console.log("in main block js");
+
+
+	function dataLoad(url) {
+        // Create new promise with the Promise() constructor;
+        // This has as its argument a function
+        // with two parameters, resolve and reject
+        return new Promise(function(resolve, reject) {
+            // Standard XHR to load an image
+            var request = new XMLHttpRequest();
+            request.open('GET', url, true);
+            request.setRequestHeader('Content', 'application/JSON');
+
+            // When the request loads, check whether it was successful
+            request.onload = function() {
+            	if (request.status === 200) {
+            // If successful, resolve the promise by passing back the request response
+            resolve(request.response);
+        } else {
+            // If it fails, reject the promise with a error message
+            reject(Error('Data didn\'t load successfully; error code:' + request.statusText));
+        }
+    };
+    request.onerror = function() {
+            // Also deal with the case when the entire request fails to begin with
+            // This is probably a network error, so reject the promise with an appropriate message
+            reject(Error('There was a network error.'));
+        };
+            // Send the request
+            request.send();
+        });
+    }
+
+    dataLoad('http://localhost:8000/spike/data/1/').then(function(response) {
+    	var data = JSON.parse(response);
+    	d3.select("div#container")
+    	.append("p")
+    	.attr("id", "myNewParagrap")
+    	.append("text")
+    	.text(data.trial_number);
+        // The second runs when the promise
+        // is rejected, and logs the Error specified with the reject() method.
+    }, function(Error) {
+    	console.log(Error);
+    });
+
+    dataLoad('http://localhost:8000/spike/data/2/').then(function(response) {
+    	var data = JSON.parse(response);
+    	d3.select("div#container")
+    	.append("p")
+    	.attr("id", "myNewParagrap")
+    	.append("text")
+    	.text(data.trial_number);
+        // The second runs when the promise
+        // is rejected, and logs the Error specified with the reject() method.
+    }, function(Error) {
+    	console.log(Error);
+    })
+</script>
 
 
 
