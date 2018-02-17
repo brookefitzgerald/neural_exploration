@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
 
     # Your stuff: custom urls includes go here
-    url(r'^spike/', include('neural_exploration.visualize.urls', namespace='spike')),
+    url(r'^spike/', include('neural_exploration.visualize.urls')),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
