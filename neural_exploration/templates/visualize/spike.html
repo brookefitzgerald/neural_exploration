@@ -1,41 +1,140 @@
 {% extends "base.html" %}
 
 {% load static %}
-<script src="{% static 'js/project.js' %}"></script>
 {% block content %}
 
 <body>
 	<div class="container" id="container">
-		<div id='header'></div>
+		
 		<div id='graph'></div>
 		<div id='sections'>
-			<div id='section'>
-				<h1>A visual introduction to neural data</h1>
-				We've all wondered how the brain processes information. You may have asked yourself, 'How am I reading this text?'
-				'How can I look at an everyday object like a kiwi and tell what it is?'
+			<div class='section' id='intro'>
+				<h1>Exploring neural data visually</h1>
+				<p>We've all wondered how the brain processes information. You may have asked yourself, 'How am I reading this text?'
+				'How can I look at an everyday object like a kiwi and tell what it is?'</p>
 
-				Neuroscientists ask questions like this everyday, and then conduct experiments to figure out the answer.
+				<p>Neuroscientists ask questions like this everyday, and then conduct experiments to figure out the answer.</p>
 
-				This website will explore how brain activity generates neural data and how we use neural data to figure out how the brain works. 
+				<p>This website will explore how brain activity generates neural data and how we use neural data to figure out how the brain works. </p>
 
-				Scroll to learn more.
+				<p>Scroll to learn more.</p>
 			</div>
-			<div id='section'>
+			<div class='section'>
 				<h1>What exactly is brain activity?</h1>
 
-				Scientists know more about the brain works than ever before, but there are still many unanswered questions.
+				<p>Scientists know more about the brain works than ever before, but there are still many unanswered questions.</p>
 
-				To answer these questions, neuroscientists measure brain activity.
+				<p>To answer these questions, neuroscientists measure brain activity.</p>
 
-				The brain is made up of a large number of specialized cells called neurons. Typical neurons consist of a soma (or cell body), dendritic branches (or dendrite) that receives signal from other cells, and an axon that conducts signal away from the cell body to other neurons or to muscles.
+				<p>The brain is made up of a large number of specialized cells called neurons. Typical neurons consist of a soma (or cell body), dendritic branches (or dendrite) that receives signal from other cells, and an axon that conducts signal away from the cell body to other neurons or to muscles.</p>
 			</div>
-			<div id='section'>
-				When the sum of signals that reach the dendrite from other neurons and/or from elsewhere in the body is larger than some threshold, the dendrite "fires" - thus propagating the signal through the neuron’s long axon to reach other neurons.
+			<div class='section'>
+				<p>When the sum of signals that reach the dendrite from other neurons and/or from elsewhere in the body is larger than some threshold, the dendrite "fires" - thus propagating the signal through the neuron’s long axon to reach other neurons.</p>
 
-				This propagation of signal is called an action potential, or spike, and is the basis of all neural communication. Dendrites were initially thought to only passively propagate information, but they’re now known to actively cause spikes themselves and can even back-propagate signal through the dendritic tree to reach neurons there.
+				<p>This propagation of signal is called an action potential, or spike, and is the basis of all neural communication. Dendrites were initially thought to only passively propagate information, but they’re now known to actively cause spikes themselves and can even back-propagate signal through the dendritic tree to reach neurons there.</p>
+			</div>
+			<div class='section'>
+				<p>Nonetheless, dendrites constantly receive new incoming signals, and therefore the action potentials that the dendrite fires create a pattern over time. </p>
+				<p>One way that neuroscientists measure brain activity is by implanting electrodes into the brain that record a large number of neurons and their firing rates over time. These spikes recorded over time is called a spike train and looks something like this:</p>
+			</div>
+			<div class='section'>
+				<h1>Our experiment</h1>
+				<p>Many neuroscience experiments try to figure out how the brain works by recording responses to different conditions. The experiment we'll be examining [collected by Ying Zhang in Bob Desimone’s lab in the McGovern Institute at MIT] recorded spikes from 132 neurons in the inferior temporal cortex (a brain region known to be important for visual processing) of a Macaque monkey.</p>
+			</div>
+			<div class='section'>
+				<p>The monkey was presented with one of seven different stimuli: pictures of a guitar, hand, flower, kiwi, couch, face, or car. Each neuron was recorded for 1000 ms, and the stimulus was shown 500 ms after the monkey fixated a spot at the center of a display. </p>
+
+				<p>A neuron can only fire a single action potential, never a half an action potential, so a spike train that measures when action potentials are fired is only ever 0 or 1. </p>
+			</div>
+			<div class='section'>
+				<h1>Averaging over time</h1>
+				<p>Now that we have this collection of zeros and ones, we can ask more interesting questions. Namely, what does seeing a kiwi look like in the brain? At what time can our brains tell that we’re looking at a hand? How can we be sure that these zeros and ones aren't just due to chance? </p>
+
+				<p>To present this data a different way, we can look at the average firing rate over an interval of time.</p>
+			</div>
+			<div class='section'>
+				<p>This makes it easier to see how neurons' firing rates differ from each other.</p>
+
+				<p>Some neurons fire all the time, some neurons rarely fire, but how can we tell which neurons are important for our experiment?</p>
+			</div>
+			<div class='section'>
+				<h1>Averaging over trials</h1>
+				<p>The first thing we want to do is look at multiple trials.</p>
+				<p>The spike train from one neuron can fire very differently from run to run, even when both recordings come from the same stimulus. It's therefore important to look at many recordings from the same neuron to make sure you aren't confusing random effects for experimental results. </p>
+			</div>
+			<div class='section'>
+				<h1>Accounting for variability</h1>
+				<p>The bars that you see are called 95% confidence intervals, and they are an indicator of how variable each neuron's average response is. More technically, in future experiments the true average firing rate of the neuron will be in between the bars 95% of the time. When the bars are larger for a stimulus, this generally means that the neuron's response to that stimulus is quite variable. </p>
+				<p>We can investigate this further by removing some of the data to see how the mean and confidence intervals change. 2. For more information about confidence intervals, see [website].</p>
+			</div>
+			<div class='section'>
+				<h1>Looking at multiple neurons</h1>
+				<p>Now that we have a good idea of what the firing rate for one neuron looks like for every stimulus over many different trials, we can now look at the average of many different neurons. </p>
+			</div>
+			<div class='section'>
+				<h1>Thinking about information in neurons</h1>
+				<p>Every neuron responds to stimuli differently. This means that averaging them can lose information the data contains about which stimuli the monkey is looking at. </p>
+				<p>For example, neuron A spikes only a few times when the [kiwi] stimulus appears, but neuron B spikes consistently after every stimulus appears. </p>
+				<p>This means that for figuring out when the monkey is looking at a [kiwi], neuron A is much more informative.</p>
+			</div>
+			<div class='section'>
+				<p>We therefore need another way of combining information from different neurons that helps us figure out the answer to our experimental question: how does the brain process and store information about different images?</p>
+			</div>
+			<div class='section'>
+				<p>
+				To answer this question, let's think about what we would expect to see.</p>
+				<p>In our experiment, the stimulus was shown after 500 ms of recording activity. If information about each stimulus wasn't being processed by the neurons, the average firing rate before the stimulus was shown should be the same as the average firing rate after the stimulus was shown. Furthermore, the average firing rates for one stimulus should be different from the others.</p>
+				<p>Let's figure out exactly how different they are!</p>
+			</div>
+			<div class='section'>
+				<h1>Calculating information with statistics</h1>
+				<p>There are a few ways that we can think about difference. We can think about each neuron having different average firing rates for every stimulus. </p>
+				<p>However, as we saw before, the same neuron can respond very differently to multiple exposures to the same stimulus. Thus we also need to look at the variability of the average firing rates for each neuron for every stimulus.</p>
+			</div>
+			<div class='section'>
+				<p>To do this, we'll run an ANalysis Of VAriance or ANOVA, a procedure that helps us figure out if the difference in the average firing rates between stimuli actually comes from our the different stimuli.  </p>
+				<p>More technically, ANOVA computes a statistic that gives us a measure of the likelihood that the differences in mean firing rates between stimuli is actually due to the different stimuli instead of just overall random chance.</p>
+				<p>For each time bin and neuron, we run an ANOVA and get a p-value describing the likelihood that the differences in average firing rate between stimuli is solely due to chance.</p>
+			</div>
+			<div class='section'>
+				<p>Therefore, a very small p-value indicates that the different stimuli made a significant difference in the mean firing rates!</p>
+
+				<p>We can even look at what the most selective neurons at any point in time look like for different experimental conditions.</p>
+			</div>
+			<div class='section'>
+				<h1>Calculating information with prediction</h1>
+				<p>Using ANOVA to figure out how much information is in our data is a good approach, but what if information about the experimental condition (in our case what the monkey is looking at) comes from more than just differences in the mean firing rate? One way to answer such a question is another technique neuroscientists use called decoding analysis. </p>
+
+				<p>The motivating idea behind decoding is that it is very difficult for humans to easily figure out how neurons represent information about stimuli. It's simply too hard to find patterns describing how every neuron represents every stimuli by hand. However, while it is difficult for humans to learn these types of patterns, computers can do so quite easily!</p>
+
+				<p>Decoding works by first using some of the data from an experiment to build a model to predict which stimulus the monkey was looking at. That model is then applied to the rest of the data to predict what the monkey is looking at. </p>
+			</div>
+			<div class='section' id='physical_machine'>
+				<p>If our model was a physical machine, training the model would be like feeding the machine neuron spike trains and tweaking the machine settings machine whenever the predictions it gave us were wrong, then doing this over and over again with new data until the predictions are mostly right. This process of using computers to automatically identify patterns in data is called machine learning and is used in everything from face recognition to predicting stock market prices. (For a deeper explanation of how machine learning works, check out <a href=http://www.r2d3.us/visual-intro-to-machine-learning-part-1/>r2d3.us/visual-intro-to-machine-learning-part-1/</a>)</p>
+				<p>When the model's predictions are very accurate, it means that the data collected in the experiment contain a lot of information about the stimuli.</p>
+			</div>
+			<div class='section'>
+				<p>But how do we know that the model isn’t making accurate predictions by chance? 
+				</p>
+				<p>What we can do is first create a large number of random data sets by randomly swapping labels on the data that we’ll feed our model. Then we can test our random models with the original data. Most of the time the new models will be perform no better than chance, but occasionally they will perform better than chance. </p>
+			</div>
+			<div class='section'>
+				<p>When our original model is more accurate than any of the random models, we can be pretty confident that our accuracy is not just due to chance! </p>
+			</div>
+			<div class='section'>
+				<p>We can then even combine the results of our ANOVA and decoding analyses, training new models on only the most selective neurons and seeing how accurate our predictions can be with fewer neurons. </p>
+			</div>
+			<div class='section'>
+				<p>These results can tell us a lot about our experiment!</p>
+				<p>First, we can see if information about a stimulus is contained in a large number of neurons or in only a few neurons.</p>
+				<p>Second, they can tell us if there are certain stimuli that are more easily identified by the neurons we have data from.</p>
+				<p>Third, they can give us an idea of how long it takes information about a stimulus to propagate through the brain. </p>
+			</div>
+			<div class='section' id='conclusion'>
+				<h1>In conclusion</h1>
+				<p>Neuroscience is complicated, and nobody has all of the answers about how the brain works. However, the more data we get and the more we think about information and signal and chance and what that means for our experiment the more we’ll understand.</p> 
 			</div>
 		</div>
-		<div id='footer'></div>
 	</div>
 </body>
 {% endblock content %}

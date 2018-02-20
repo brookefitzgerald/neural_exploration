@@ -1,60 +1,89 @@
 .alert-debug {
-  background-color: #fff;
-  border-color: #d6e9c6;
-  color: #000; }
+	background-color: #fff;
+	border-color: #d6e9c6;
+	color: #000; 
+}
 
 .alert-error {
-  background-color: #f2dede;
-  border-color: #eed3d7;
-  color: #b94a48; }
+	background-color: #f2dede;
+	border-color: #eed3d7;
+	color: #b94a48; 
+}
 
 [hidden][style="display: block;"] {
-  display: block !important; }
+	display: block !important; 
+}
 
 #sections > div{
-  opacity: .3
+	opacity: .3
 } 
 
 #sections div.graph-scroll-active{
-  opacity: 1;
+	opacity: 1;
 }
 #container{
-  position: relative;
+	position: relative;
 }
 
 #sections{
-  width: 340px;
+	width: 340px;
 }
 
-#section{
-	padding-top: 40px;
+.section{
+	padding-top: 50px;
+	padding-bottom: 50px;
+	opacity: .3;
+	height: 720px;
+}
+
+.section#conclusion{
+	height: 515px;
+	margin-bottom: 100px;
 }
 
 #graph{
-  margin-left: 40px;
-  width: 500px;
-  position: sticky;
-  top: 0px;
-  float: right;
+	width: calc(100% - 340px);
+	height: 60vh;
+	padding-left: 40px;
+	position: sticky;
+	top: 20vh;
+	float: right;
+}
+
+#intro{
+	padding-top: 100px;
+}
+
+#physical_machine{
+	padding-top: 200px;
 }
 
 @media (max-width: 925px)  {
-  #graph{
-    width: 100%;
-    transform: translate(-50%, 0);
-    margin-left: 50%;
-  }
+	#graph{
+		padding-left: 0px;
+		width: 100%;
+		height: 340px;
+		margin: 0px auto;
+		top: 5vh;
+	}
 
-  #sections{
-    position: relative;
-    margin: 0px auto;
-    padding-top: 400px;
-  }
+	#sections{
+		position: relative;
+		margin: 0px auto;
+		padding-top: 250px;
+	}
+
+	.section{
+		opacity: 0.1;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	} 
+	#header{
+		padding-top: 20px;
+	}
+	.section#conclusion{
+		margin-bottom: 50px;
+		height: 300px;
+	}
 }
 
-#header{
-	padding-top: 20px;
-}
-#footer{
-	padding-top: 200px;
-}
