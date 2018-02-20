@@ -1,123 +1,59 @@
 {% extends "base.html" %}
-{% load static %}
 
+{% load static %}
+<script src="{% static 'js/project.js' %}"></script>
 {% block content %}
 
-<style>
-.ticks {
-	font: 10px sans-serif;
-}
-
-.track,
-.track-inset,
-.track-overlay {
-	stroke-linecap: round;
-}
-
-.track {
-	stroke: #000;
-	stroke-opacity: 0.3;
-	stroke-width: 10px;
-}
-
-.track-inset {
-	stroke: #ddd;
-	stroke-width: 8px;
-}
-
-.track-overlay {
-	pointer-events: stroke;
-	stroke-width: 50px;
-	stroke: transparent;
-	cursor: crosshair;
-}
-
-.sliderhandle {
-	fill: #fff;
-	stroke: #000;
-	stroke-opacity: 0.5;
-	stroke-width: 1.25px;
-}
-
-
-</style>
 <body>
 	<div class="container" id="container">
+		<div id='header'></div>
+		<div id='graph'></div>
 		<div id='sections'>
-			<div height="500px" width="200px">Section 0</div>
-			<div height="500px" width="200px">Section 1</div>
-			<div height="500px" width="200px">Section 2</div>
+			<div id='section'>
+				<h1>A visual introduction to neural data</h1>
+				We've all wondered how the brain processes information. You may have asked yourself, 'How am I reading this text?'
+				'How can I look at an everyday object like a kiwi and tell what it is?'
+
+				Neuroscientists ask questions like this everyday, and then conduct experiments to figure out the answer.
+
+				This website will explore how brain activity generates neural data and how we use neural data to figure out how the brain works. 
+
+				Scroll to learn more.
+			</div>
+			<div id='section'>
+				<h1>What exactly is brain activity?</h1>
+
+				Scientists know more about the brain works than ever before, but there are still many unanswered questions.
+
+				To answer these questions, neuroscientists measure brain activity.
+
+				The brain is made up of a large number of specialized cells called neurons. Typical neurons consist of a soma (or cell body), dendritic branches (or dendrite) that receives signal from other cells, and an axon that conducts signal away from the cell body to other neurons or to muscles.
+			</div>
+			<div id='section'>
+				When the sum of signals that reach the dendrite from other neurons and/or from elsewhere in the body is larger than some threshold, the dendrite "fires" - thus propagating the signal through the neuron’s long axon to reach other neurons.
+
+				This propagation of signal is called an action potential, or spike, and is the basis of all neural communication. Dendrites were initially thought to only passively propagate information, but they’re now known to actively cause spikes themselves and can even back-propagate signal through the dendritic tree to reach neurons there.
+			</div>
 		</div>
+		<div id='footer'></div>
 	</div>
 </body>
 {% endblock content %}
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+{% block javascript %}
+{{ block.super }}
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="{% static 'js/graph-scroll.js' %}"></script>
-<script src="{% static 'js/scrolling.js' %}"></script>
-<script text="javascript">
-	console.log("in main block js");
-
-
-	function dataLoad(url) {
-        // Create new promise with the Promise() constructor;
-        // This has as its argument a function
-        // with two parameters, resolve and reject
-        return new Promise(function(resolve, reject) {
-            // Standard XHR to load an image
-            var request = new XMLHttpRequest();
-            request.open('GET', url, true);
-            request.setRequestHeader('Content', 'application/JSON');
-
-            // When the request loads, check whether it was successful
-            request.onload = function() {
-            	if (request.status === 200) {
-            // If successful, resolve the promise by passing back the request response
-            resolve(request.response);
-        } else {
-            // If it fails, reject the promise with a error message
-            reject(Error('Data didn\'t load successfully; error code:' + request.statusText));
-        }
-    };
-    request.onerror = function() {
-            // Also deal with the case when the entire request fails to begin with
-            // This is probably a network error, so reject the promise with an appropriate message
-            reject(Error('There was a network error.'));
-        };
-            // Send the request
-            request.send();
-        });
-    }
-
-    dataLoad('http://localhost:8000/spike/data/1/').then(function(response) {
-    	var data = JSON.parse(response);
-    	d3.select("div#container")
-    	.append("p")
-    	.attr("id", "myNewParagrap")
-    	.append("text")
-    	.text(data.trial_number);
-        // The second runs when the promise
-        // is rejected, and logs the Error specified with the reject() method.
-    }, function(Error) {
-    	console.log(Error);
-    });
-
-    dataLoad('http://localhost:8000/spike/data/2/').then(function(response) {
-    	var data = JSON.parse(response);
-    	d3.select("div#container")
-    	.append("p")
-    	.attr("id", "myNewParagrap")
-    	.append("text")
-    	.text(data.trial_number);
-        // The second runs when the promise
-        // is rejected, and logs the Error specified with the reject() method.
-    }, function(Error) {
-    	console.log(Error);
-    })
-</script>
+<!--<script src="{% static 'js/api.js' %}"></script>-->
+<script src="{% static 'js/project.js' %}"></script>
+{% endblock javascript %}
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+
+
+
+
+
+
+

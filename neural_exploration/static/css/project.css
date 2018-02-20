@@ -10,3 +10,51 @@
 
 [hidden][style="display: block;"] {
   display: block !important; }
+
+#sections > div{
+  opacity: .3
+} 
+
+#sections div.graph-scroll-active{
+  opacity: 1;
+}
+#container{
+  position: relative;
+}
+
+#sections{
+  width: 340px;
+}
+
+#section{
+	padding-top: 40px;
+}
+
+#graph{
+  margin-left: 40px;
+  width: 500px;
+  position: sticky;
+  top: 0px;
+  float: right;
+}
+
+@media (max-width: 925px)  {
+  #graph{
+    width: 100%;
+    transform: translate(-50%, 0);
+    margin-left: 50%;
+  }
+
+  #sections{
+    position: relative;
+    margin: 0px auto;
+    padding-top: 400px;
+  }
+}
+
+#header{
+	padding-top: 20px;
+}
+#footer{
+	padding-top: 200px;
+}
