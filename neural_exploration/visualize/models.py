@@ -22,8 +22,36 @@ class Site(models.Model):
     )
     slug = models.CharField(max_length=30)
 
+    labels_one = ArrayField(models.CharField(max_length=30, null=True, blank=True),
+        null=True, blank=True)
+    labels_two = ArrayField(models.CharField(max_length=30, null=True, blank=True),
+        null=True, blank=True)
+    labels_three = ArrayField(models.CharField(max_length=30, null=True, blank=True),
+        null=True, blank=True)
+    labels_four = ArrayField(models.CharField(max_length=30, null=True, blank=True),
+        null=True, blank=True)
+    data = ArrayField(
+            ArrayField(
+                    models.DecimalField(max_digits=15, decimal_places=10),
+                blank=True, null=True),
+            blank=True, null=True)
+
     def __str__(self):
         return str(self.experiment.slug + '-' + self.slug)
+
+    def filter_by_label(self, experiment, input_label, label_number=1):
+        if label_number == 1:
+            stimuli = self.objects.filter(labels_one__contains=[input_label])
+        elif label_number == 2:
+            stimuli = self.objects.filter(labels_two__contains=[input_label])
+        elif label_number == 3:
+            stimuli = self.objects.filter(labels_three__contains=[input_label])
+        elif label_number == 4:
+            stimuli = self.objects.filter(labels_four__contains=[input_label])
+        else:
+            raise FieldDoesNotExist()
+        return stimuli
+
 
 
 class Metadata(models.Model):
@@ -42,41 +70,27 @@ class Metadata(models.Model):
         return str(str(self.site) + '-' + self.information_variable)
 
 
-class Data(models.Model):
-    """Data recorded from a site during an experiment with labels shown"""
-    experiment = models.ForeignKey(
-        Experiment,
-        on_delete=models.CASCADE
+class BinnedData(models.Model):
+    """Binned average of data for every site"""
+    site=models.ForeignKey(
+        Site, on_delete=models.CASCADE
     )
-    site = models.ForeignKey(
-        Site,
-        on_delete=models.CASCADE
-    )
-    trial_number = models.IntegerField()
-    label_one = models.CharField(max_length=30)
-    label_two = models.CharField(max_length=30, null=True, blank=True)
-    label_three = models.CharField(max_length=30, null=True, blank=True)
-    label_four = models.CharField(max_length=30, null=True, blank=True)
-    data = ArrayField(models.DecimalField(max_digits=15, decimal_places=10))
-
-    class Meta:
-        verbose_name_plural = "data"
+    bin_150_50= ArrayField(
+            ArrayField(
+                    models.DecimalField(max_digits=15, decimal_places=10),
+                blank=True, null=True),
+            blank=True, null=True)
+    bin_100_30= ArrayField(
+            ArrayField(
+                    models.DecimalField(max_digits=15, decimal_places=10),
+                blank=True, null=True),
+            blank=True, null=True)
+    bin_50_15 = ArrayField(
+            ArrayField(
+                    models.DecimalField(max_digits=15, decimal_places=10),
+                blank=True, null=True),
+            blank=True, null=True)
 
     def __str__(self):
-        return str(str(self.site) + '-' + str(self.trial_number))
+        return str(str(self.site) + '-bin')
 
-    def filter_by_label(self, experiment, input_label, label_number=1):
-        if label_number == 1:
-            stimuli = self.objects.filter(label_one=input_label)
-        elif label_number == 2:
-            stimuli = self.objects.filter(label_two=input_label)
-        elif label_number == 3:
-            stimuli = self.objects.filter(label_three=input_label)
-        elif label_number == 4:
-            stimuli = self.objects.filter(label_four=input_label)
-        else:
-            raise FieldDoesNotExist()
-        return stimuli
-
-    def compute_binned_data(self, bin_size, step_size):
-        pass

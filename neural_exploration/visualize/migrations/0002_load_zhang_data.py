@@ -29,21 +29,21 @@ def forwards_func(apps, schema_editor):
     )
     Experiment.objects.using(db_alias).bulk_create([zhang_experiment])
     Site = apps.get_model("visualize", "Site")
-    Data = apps.get_model("visualize", "Data")
     Metadata = apps.get_model("visualize", "Metadata")
     zhang_data_directory = str(environ.Path().path('neural_exploration',
                                                    'visualize',
                                                    'migrations',
                                                    'zhang_data'))
+
+    map_get_zero = np.vectorize(lambda x: x[0])
     for i, mat_file in enumerate(listdir(zhang_data_directory)):
         if i % 10 == 0:
             print('Reading site number: ' + str(i))
         mat_data = loadmat(zhang_data_directory + '/' + mat_file)
-
-        data = mat_data['raster_data']
-        labels_one = mat_data['raster_labels'][0][0][0][0]
-        labels_two = mat_data['raster_labels'][0][0][1][0]
-        labels_three = mat_data['raster_labels'][0][0][2][0]
+        data = mat_data['raster_data'].tolist()
+        labels_one = map_get_zero(mat_data['raster_labels'][0][0][0][0]).tolist()
+        labels_two = map_get_zero(mat_data['raster_labels'][0][0][1][0]).tolist()
+        labels_three = map_get_zero(mat_data['raster_labels'][0][0][2][0]).tolist()
         metadata_variables = mat_data['raster_site_info'][0].dtype.names
         metadata_values = [
             np.ndarray.flatten(val)[0] if len(
@@ -52,8 +52,15 @@ def forwards_func(apps, schema_editor):
         ]
 
         metadata = zip(metadata_variables, metadata_values)
+
         site_slug = mat_file[2:6] + '_' + mat_file[10:12]
-        zhang_site = Site(slug=site_slug, experiment=zhang_experiment)
+        zhang_site = Site(
+            slug=site_slug,
+            experiment=zhang_experiment,
+            labels_one=labels_one,
+            labels_two=labels_two,
+            labels_three=labels_three,
+            data = data)
         Site.objects.using(db_alias).bulk_create([zhang_site])
 
         Metadata.objects.using(db_alias).bulk_create([
@@ -61,17 +68,6 @@ def forwards_func(apps, schema_editor):
                 site=zhang_site,
                 information_variable=var,
                 information_value=val) for (var, val) in metadata
-        ])
-        Data.objects.using(db_alias).bulk_create([
-            Data(
-                experiment=zhang_experiment,
-                site=zhang_site,
-                trial_number=trial_number,
-                label_one=labels_one[trial_number][0],
-                label_two=labels_two[trial_number][0],
-                label_three=labels_three[trial_number][0],
-                data=data[trial_number, :].tolist())
-            for trial_number in range(data.shape[0])
         ])
 
 
