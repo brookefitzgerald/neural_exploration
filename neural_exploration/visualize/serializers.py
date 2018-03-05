@@ -1,11 +1,8 @@
 from django.apps import apps
 
 from rest_framework import serializers
-import ipdb
 
 Experiment = apps.get_model("visualize", "Experiment")
-Site = apps.get_model("visualize", "Site")
-BinnedData = apps.get_model("visualize", "BinnedData")
 
 
 class ExperimentSerializer(serializers.ModelSerializer):

@@ -19,9 +19,7 @@ def SpikeDataView(request):
         .objects
         .filter(experiment=zhang_experiment)
         .first())
-    serializer = DataSerializer(zhang_data, many=False)
-    data = renderers.JSONRenderer().render(serializer.data)
-    return render(request, "visualize/spike.html", {"data": data})
+    return render(request, "visualize/spike.html", {"data": zhang_data})
 
 
 @api_view(['GET'])
@@ -79,15 +77,14 @@ def binned_filter_detail(request, i, pk):
         "2": SecondBinSerializer,
         "3": ThirdBinSerializer}
     try:
-        data = (
-            get_queryset_of_bin_size(i)
+        data = (get_queryset_of_bin_size(i)
             .get(pk=pk))
-        if request.method == 'GET':
-            serializer = bin_serializer_dict[i](data)
-            json_data = renderers.JSONRenderer().render(serializer.data)
-            return Response(json_data)
-    except data.DoesNotExist:
+    except:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = bin_serializer_dict[i](data)
+        json_data = renderers.JSONRenderer().render(serializer.data)
+        return Response(json_data)
 
 
 @api_view(['GET'])
