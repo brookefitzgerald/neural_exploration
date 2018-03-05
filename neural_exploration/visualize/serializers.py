@@ -1,6 +1,7 @@
 from django.apps import apps
 
 from rest_framework import serializers
+import ipdb
 
 Experiment = apps.get_model("visualize", "Experiment")
 Site = apps.get_model("visualize", "Site")
@@ -13,19 +14,36 @@ class ExperimentSerializer(serializers.ModelSerializer):
         model = Experiment
         fields = '__all__'
 
+class InnerListField(serializers.ListField):
+    child = serializers.DecimalField(max_digits=15, decimal_places=10)
 
-class DataSerializer(serializers.ModelSerializer):
+
+class CharListField(serializers.ListField):
+    child = serializers.CharField()
+
+
+class DataSerializer(serializers.Serializer):
     """JSON serialized representation of the Data Model"""
     experiment = ExperimentSerializer(many=False, read_only=True)
+    slug = serializers.CharField()
+    labels_one = CharListField()
+    labels_two = CharListField()
+    labels_three = CharListField()
+    labels_four = CharListField()
+    data = serializers.ListField(child=InnerListField())
 
-    class Meta:
-        model = Site
-        fields = ('data', 'slug', 'labels_one', 'labels_two',
-                  'labels_three', 'labels_four', 'experiment')
 
-
-class BinSerializer(serializers.ModelSerializer):
+class FirstBinSerializer(serializers.Serializer):
     """JSON representation of the Binned Data"""
-    class Meta:
-        model = BinnedData
-        fields = '__all__'
+    bin_150_50 = serializers.ListField(child=InnerListField())
+
+
+class SecondBinSerializer(serializers.Serializer):
+    """JSON representation of the Binned Data"""
+    bin_100_30=serializers.ListField(child=InnerListField())
+
+
+class ThirdBinSerializer(serializers.Serializer):
+    """JSON representation of the Binned Data"""
+    bin_50_15=serializers.ListField(child=InnerListField())
+
