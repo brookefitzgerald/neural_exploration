@@ -1,33 +1,47 @@
 $('.form-group').removeClass('row');
 
-d3.select('#graph').append("svg").attr("width","100%").attr("height","100%");
+var margin = {top: 30, right: 20, bottom: 50, left: 50}
 
-var graph = d3.select("svg"),
-	pixw = graph.style('width'),
-	w = pixw.slice(0,pixw["length"]-2)*1;
+var svg = d3.select("svg");
 
-var pixh = graph.style('height'),
-	h = pixh.slice(0,pixh["length"]-2)*1;
+// Setup window constants
+var pixw = svg.style('width'),
+	w = pixw.slice(0,pixw["length"]-2)*1-margin.left-margin.right,
+	pixh = svg.style('height'),
+	h = pixh.slice(0,pixh["length"]-2)*1-margin.top-margin.bottom;
 
-var brain_pulse = function(){
-	// SVG of brain appearing with data streaming by
-	var time = 4000;
-	text_data = [
-		{text:'000100011000',startx: w-(w/3), duration: time/3*(2/3)},
-		{text:'111000110101',startx: 0, duration: time*(2/3)},
-		{text:'010000000001',startx: w/2, duration: time/2*(2/3)},
-		{text:'101001000011',startx: w, duration: 0}
-	];
-	graph.append('image')
-		.attr('xlink:href',link)
-		.attr('height', '90%')
-		.attr('width', '90%');
+window.onresize = function(){
+	pixw = svg.style('width');
+	w = pixw.slice(0,pixw["length"]-2)*1-margin.left-margin.right;
+	pixh = svg.style('height');
+	h = pixh.slice(0,pixh["length"]-2)*1-margin.top-margin.bottom;
+};
 
-	graph.selectAll("text")
+var graph = svg.append("g")
+	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// setup x 
+var xScale = d3.scaleLinear().range([0, w]),
+    xAxis = d3.axisBottom(xScale);
+
+// setup y
+var yScale = d3.scaleLinear().range([h, 0]), // value -> display
+    yAxis = d3.axisLeft(yScale);
+
+var initial_data = dataLoad('http://'+host+'/spike/data/100').then(function(response){
+		let data = JSON.parse(response);
+		data.data = data.data.map(showing=>showing.map(Number));
+		xScale.domain([0, data.data[0].length]);
+		yScale.domain([0, 1]);
+		return data});
+
+var scroll_text = function(text_data, time){
+	svg.selectAll("text")
 		.data(text_data)
 		.enter()
 		.append('text')
 		.text(d=> d.text)
+		.attr('class','code')
 		.attr('x',d=>d.startx)
 		.attr('y',(d,i)=>(i+1)*h/text_data.length)
 		.transition()
@@ -42,32 +56,120 @@ var brain_pulse = function(){
 				.transition()
 					.duration(time)
 					.on("start", repeat);
-		});
+				});
+	return;
+}
 
+var brain_pulse = function(){
+	// SVG of brain appearing with data streaming by
+	time = 4000;
+	text_data = [
+		{text:'000100011000',startx: w-(w/3), duration: time/3*(2/3)},
+		{text:'111000110101',startx: 0, duration: time*(2/3)},
+		{text:'010000000001',startx: w/2, duration: time/2*(2/3)},
+		{text:'101001000011',startx: w, duration: 0}
+	];
+	svg.select("#brain")
+		.attr("height",'90%')
+		.attr("width",'90%');
+	scroll_text(text_data, time);
 	return;
 }
 
 var zoom_to_neuron = function(){
-	graph.selectAll("*").remove();
+	svg.select("#brain")
+		.attr("width",0)
+		.attr("height",0);
+	svg.selectAll("text").remove();
 	return;
 }
 
 var neuron_spike = function(){
+	graph.selectAll("*").remove()
 	return;
 }
+
+
+var draw_time_x_axis = function(x_label){
+	// x-axis
+	graph.append("g")
+    	.attr("class", "x axis")
+    	.attr("transform", "translate(0," + h + ")")
+    	.call(xAxis)
+    	.append("text")
+    		.attr("fill", "#000")
+    		.attr("x", w/2)
+      		.attr("y", 30)
+      		.attr("class", "label")
+      		.text(x_label);
+}
+
+var draw_y_axis = function(y_label, type){
+	// y-axis
+	if (type=="boolean"){
+		yAxis.tickValues([0,1])
+			.tickFormat(d3.format(".1"));
+	} else if (type=="continuous"){
+		yAxis.tickValues(null)
+			.tickFormat(null);
+	}
+	graph.append("g")
+		.attr("class", "y axis")
+		.call(yAxis)
+	    .append("text")
+	    	.attr("fill", "#000")
+	    	.attr("x", -h/2+margin.top)
+      		.attr("y", -30)
+      		.attr("transform","rotate(-90)")
+	    	.attr("class", "label")
+	    	.text(y_label);
+}
 var single_neuron_spike_train = function(){
+	// draws a single neuron spike train with axes 
+	initial_data.then(function(data){
+		var num_points = data.data[0].length
+		graph.append("g")
+			.attr("class", "data")
+			.selectAll("rect")
+			.data(data.data[0])
+			.enter()
+			.append("rect")
+				.attr("x", (d,i)=>xScale(i))
+				.attr("y", d=>yScale(d))
+				.attr("width", 1)
+				.attr("height", d=>d*yScale(0))
+				.attr("rx", 1/2)
+				.attr("ry", 1/2);
+		draw_time_x_axis("Time (ms)")
+		draw_y_axis("Spike detected", "boolean");
+	});
 	return;
 }
 var zoom_to_inferior_temporal_cortex = function(){
+	graph.selectAll(".data").remove()
 	return;
 }
 var show_stimuli = function(){
+
 	return;
 }
 var bin_average = function(){
+	dataLoad('http://'+host+'/spike/bin/1/30').then(
+	    function(response) {
+	    	console.log(response)
+	        var data = JSON.parse(response);
+	        d3.select("div#container")
+	        .append("p")
+	        .attr("id", "myNewParagrap")
+	        .append("text")
+	        .text(data.trial_number);
+	    }, function(Error) {
+	        console.log(Error);
+    });
 	return;
 }
 var question = function(){
+
 	return;
 }
 var trial_average = function(){

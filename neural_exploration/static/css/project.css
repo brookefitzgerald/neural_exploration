@@ -14,7 +14,7 @@
 	display: block !important; 
 }
 
-text{
+.code{
 	font-size: 40px;
 	font-family:Consolas,Monaco,"Lucida Console","Liberation Mono","DejaVu Sans Mono","Bitstream Vera Sans Mono","Courier New",sans-serif;
 }
