@@ -19,7 +19,11 @@ def SpikeDataView(request):
         .objects
         .filter(experiment=zhang_experiment)
         .first())
-    return render(request, "visualize/spike.html", {"data": zhang_data})
+    context = {
+        "data": zhang_data,
+        "host": request.META.get('HTTP_HOST')
+    }
+    return render(request, "visualize/spike.html", context)
 
 
 @api_view(['GET'])
