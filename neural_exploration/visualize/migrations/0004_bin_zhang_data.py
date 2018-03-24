@@ -14,8 +14,8 @@ def bin_data(data, num_trials,num_time_steps, bin_size, step_size):
     starts = starts[not_overflowing]
     ends = ends[not_overflowing]
     ends[len(ends)-1]=num_time_steps
-    binned_data = [np.mean(data[:, starts[i]:ends[i]],1).tolist() for i in np.arange(len(starts))]
-    return(binned_data)
+    binned_data = np.transpose([np.mean(data[:, starts[i]:ends[i]],1) for i in np.arange(len(starts))])
+    return([binned_data.tolist(), list(zip(starts,ends))])
 
 
 def forwards_func(apps, schema_editor):
@@ -29,13 +29,18 @@ def forwards_func(apps, schema_editor):
         i+=1
         np_site_data = np.array(site.data)
         [num_trials, num_time_steps] = np_site_data.shape
+        [bin_150_50,bin_150_50_extents] = bin_data(np_site_data, num_trials,num_time_steps, 150, 50)
+        [bin_100_30,bin_100_30_extents] = bin_data(np_site_data, num_trials,num_time_steps, 100, 30)
+        [bin_50_15,bin_50_15_extents] = bin_data(np_site_data, num_trials,num_time_steps, 50, 15)
         BinnedData.objects.using(db_alias).bulk_create([
             BinnedData(
                 site=site,
-                bin_150_50= bin_data(np_site_data, num_trials,num_time_steps, 150, 50),
-                bin_100_30= bin_data(np_site_data, num_trials,num_time_steps, 100, 30),
-                bin_50_15=bin_data(np_site_data, num_trials,num_time_steps, 50, 15)
-                )
+                bin_150_50= bin_150_50,
+                bin_150_50_extents = bin_150_50_extents,
+                bin_100_30= bin_100_30,
+                bin_100_30_extents= bin_100_30_extents,
+                bin_50_15= bin_50_15,
+                bin_50_15_extents= bin_50_15_extents)
             ])
 
 

@@ -14,6 +14,9 @@ class ExperimentSerializer(serializers.ModelSerializer):
 class InnerListField(serializers.ListField):
     child = serializers.DecimalField(max_digits=15, decimal_places=10)
 
+class IntInnerListField(serializers.ListField):
+    child=serializers.IntegerField()
+
 
 class CharListField(serializers.ListField):
     child = serializers.CharField()
@@ -33,14 +36,17 @@ class DataSerializer(serializers.Serializer):
 class FirstBinSerializer(serializers.Serializer):
     """JSON representation of the Binned Data"""
     bin_150_50 = serializers.ListField(child=InnerListField())
+    bin_150_50_extents = serializers.ListField(child=IntInnerListField())
 
 
 class SecondBinSerializer(serializers.Serializer):
     """JSON representation of the Binned Data"""
     bin_100_30=serializers.ListField(child=InnerListField())
+    bin_100_30_extents = serializers.ListField(child=IntInnerListField())
 
 
 class ThirdBinSerializer(serializers.Serializer):
     """JSON representation of the Binned Data"""
     bin_50_15=serializers.ListField(child=InnerListField())
+    bin_50_15_extents = serializers.ListField(child=IntInnerListField())
 

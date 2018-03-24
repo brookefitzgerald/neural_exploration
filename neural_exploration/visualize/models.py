@@ -91,6 +91,19 @@ class BinnedData(models.Model):
                 blank=True, null=True),
             blank=True, null=True)
 
+    bin_150_50_extents = ArrayField(
+            ArrayField(
+                models.IntegerField(), blank=True,null=True),
+            blank=True,null=True)
+    bin_100_30_extents = ArrayField(
+            ArrayField(
+                models.IntegerField(), blank=True,null=True),
+            blank=True,null=True)
+    bin_50_15_extents = ArrayField(
+            ArrayField(
+                models.IntegerField(), blank=True,null=True),
+            blank=True,null=True)
+
     def __str__(self):
         return str(str(self.site) + '-bin')
 
