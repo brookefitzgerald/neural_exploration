@@ -17,27 +17,3 @@ function dataLoad(url) {
         request.send();
     });
 };
-/*
-dataLoad('http://localhost:8000/spike/data/1/').then(
-    function(response) {
-        var data = JSON.parse(response);
-        d3.select("div#container")
-        .append("p")
-        .attr("id", "myNewParagrap")
-        .append("text")
-        .text(data.trial_number);
-    }, function(Error) {
-        console.log(Error);
-    });
-
-dataLoad('http://localhost:8000/spike/data/2/').then(
-    function(response) {
-        var data = JSON.parse(response);
-        d3.select("div#container")
-        .append("p")
-        .attr("id", "myNewParagrap")
-        .append("text")
-        .text(data.trial_number);
-    }, function(Error) {
-        console.log(Error);
-    });*/
