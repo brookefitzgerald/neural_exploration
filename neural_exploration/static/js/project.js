@@ -19,8 +19,8 @@ window.onresize = function(){
 
 var graph = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var x_domain = {full: [0,1000], bin_150_50: Array.from(Array(18).keys()),bin_100_30: Array.from(Array(31).keys()), bin_50_15: Array.from(Array(64).keys())};
-var y_domain = {full: [0,1], bin_150_50: [0,1],bin_100_30: [0,1], bin_50_15: [0,1]};
+var x_domain = {full: ()=>[0,1000], bin_150_50: ()=>Array.from(Array(18).keys()),bin_100_30: ()=>Array.from(Array(31).keys()), bin_50_15: Array.from(Array(64).keys())};
+var y_domain = {full: ()=>[0,1], bin_150_50: ()=>[0,1],bin_100_30: ()=>[0,1], bin_50_15: ()=>[0,1]};
 
 // setup x 
 var linearScale = d3.scaleLinear().range([0, w]),
@@ -35,6 +35,7 @@ var yScale = d3.scaleLinear().range([h, 0]), // value -> display
 // variables for data access
 var data_pk = 100,
 	stimuli_display_number = 0,
+	n_stimuli=0,
 	bin_id = 2,
 	bin = {1: "bin_150_50", 2: "bin_100_30", 3: "bin_50_15"}[bin_id],
 	bin_width = (isNaN(+bin.slice(4,7))? +bin.slice(4,6) : +bin.slice(4,7));
@@ -42,8 +43,8 @@ var data_pk = 100,
 var initial_data = dataLoad('http://'+host+'/spike/data/'+data_pk).then(function(response){
 	let data = JSON.parse(response);
 	data.data = data.data.map(showing=>showing.map(Number));
-	x_domain.full = [0, data.data[stimuli_display_number].length];
-	y_domain.full = [0,1]
+	n_stimuli=data.data.length;
+	x_domain.full = ()=>[0, data.data[stimuli_display_number].length];
 	return data}, function(Error) {
 		console.log(Error);
 	});
@@ -52,8 +53,8 @@ var binned_data = dataLoad('http://'+host+'/spike/bin/'+bin_id+'/'+data_pk).then
 	function(response) {
 		let data = JSON.parse(response);
 		data[bin] = data[bin].map(showing=>showing.map(Number));
-		x_domain[bin] = Array.from(Array(data[bin+"_extents"].length).keys());
-		y_domain[bin] = [0,d3.max(data[bin][stimuli_display_number])];
+		x_domain[bin] = ()=>Array.from(Array(data[bin+"_extents"].length).keys());
+		y_domain[bin] = ()=>[0,d3.max(data[bin][stimuli_display_number])];
 		return data;
 	}, function(Error) {
 		console.log(Error);
@@ -113,6 +114,49 @@ var neuron_spike = function(){
 	return;
 }
 
+var restart_active_animation=function(){
+	graph.selectAll("*").transition();
+	d3.selectAll(".section")
+		.nodes()
+		.map(function(e,i){
+			if((e.classList.length >1) && (e.classList[1]=="graph-scroll-active")){
+				section_animations[i]();
+			}
+		});
+}
+
+var remove_data = function(){
+	graph.selectAll("*").transition();
+	graph.selectAll(".bins").remove();
+	graph.selectAll(".data").remove();
+	graph.selectAll(".axis").remove();
+}
+
+var draw_stimuli_display_number_change_buttons=function(){
+	if (d3.selectAll("button.neuron").nodes().length==0){
+		d3.select("div#graph").append("div")
+			.attr("class", "btn-container")
+			.attr("margin-left", margin.left)
+			.append("button")
+			.text("<")
+			.attr("class", "neuron")
+			.attr("id","down")
+    		.on('click', function(){
+    			stimuli_display_number=((stimuli_display_number== 0)? n_stimuli-1 : stimuli_display_number-1);
+    			restart_active_animation()
+			});
+			d3.select(".btn-container")
+			.append("button")
+			.text(">")
+			.attr("class", "neuron")
+			.attr("id","up")
+    		.on('click', function(){
+    			stimuli_display_number=(((stimuli_display_number+1)== n_stimuli)? 0 : stimuli_display_number+1);
+    			restart_active_animation()
+			});
+    }
+}
+
 
 var draw_x_axis = function(x_label, type, bin_extents=null){
 	xAxis = d3.axisBottom(xScale);
@@ -125,13 +169,16 @@ var draw_x_axis = function(x_label, type, bin_extents=null){
 		var transform = "translate(0,0)",
 			y_displacement = 30;
 	}
-	graph.append("g")
-		.attr("class", "x axis")
-		.attr("transform", "translate(0," + h + ")")
+
+	if (graph.selectAll("g.x").nodes().length==0){
+		graph.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + h + ")");
+	}
+	graph.selectAll("g.x")
 		.call(xAxis)
 		.selectAll("text")
 		.attr("transform",transform);
-
 	graph.selectAll(".x")
 		.append("text")
 		.attr("fill", "#000")
@@ -178,8 +225,11 @@ var draw_y_axis = function(y_label, type){
 		yAxis.tickValues(null)
 		.tickFormat(null);
 	}
-	graph.append("g")
-		.attr("class", "y axis")
+	if (graph.selectAll("g.y").nodes().length==0){
+		graph.append("g")
+			.attr("class", "y axis");
+	}
+	graph.selectAll("g.y")
 		.call(yAxis)
 		.append("text")
 		.attr("fill", "#000")
@@ -212,8 +262,8 @@ var transition_y_axis = function(y_label, type, bin_extents=null, delay=0, durat
 
 var draw_spikes = function(){
 	xScale = linearScale;
-	xScale.domain(x_domain.full);
-	yScale.domain(y_domain.full); 
+	xScale.domain(x_domain.full());
+	yScale.domain(y_domain.full()); 
 	initial_data.then(function(data){
 		graph.append("g")
 		.attr("class", "data")
@@ -232,29 +282,63 @@ var draw_spikes = function(){
 }
 var single_neuron_spike_train = function(){
 	// draws a single neuron spike train with axes
+	remove_data()
 	draw_spikes();
 	draw_x_axis("Time (ms)", "full");
 	draw_y_axis("Spike detected", "boolean");
+
 	return;
 }
 var zoom_to_inferior_temporal_cortex = function(){
-	graph.selectAll(".data").remove();
-	graph.selectAll(".axis").remove();
+
 	return;
 }
 var show_stimuli = function(){
-	graph.selectAll(".bins").remove();
-	graph.selectAll(".data").remove();
-	graph.selectAll(".axis").remove();
+	single_neuron_spike_train();
+	draw_stimuli_display_number_change_buttons();
 	return;
 }
 
+var draw_average_firing_rate=function(){
+	binned_data.then(function(data){
+		let data_length = data[bin][stimuli_display_number].length;
+		graph.selectAll("g.bins")
+			.selectAll("rect")
+			.data(data[bin][stimuli_display_number].concat(data[bin][stimuli_display_number]))
+			.enter()
+			.append("rect")
+			.attr("x",(d,j)=>xScale((j>data_length) ? j-data_length : j))
+			.attr("width", 2)
+			.attr("y", function(d,j){
+				if (j>data_length && d<data[bin][stimuli_display_number][j-data_length-1]){
+					y_value = yScale(data[bin][stimuli_display_number][j-data_length-1])
+				} else {
+					y_value = yScale(d)
+				}
+				return y_value;
+			})
+			.attr("height", function(d,j){
+				height=2
+				if (j>data_length){
+					let y_diff = Math.abs(d-data[bin][stimuli_display_number][j-data_length-1]);
+					height= yScale(yScale.domain()[1]-y_diff);
+				}
+				return height;
+			})
+			.attr("rx", 1/2)
+			.attr("ry", 1/2)
+			.attr("stroke", "#000000")
+			.attr("stroke-width",2);
+	});
+}
+
 var bin_average = function(){
+	remove_data()
 	draw_spikes();
 	draw_x_axis("Time (ms)", "full");
 	draw_y_axis("Spike detected", "boolean");
 	binned_data.then(function(data){
-		let max_height=yScale(y_domain[bin][1]),
+		let max_height=yScale(y_domain[bin]()[1]),
 			spike_nodes = graph.selectAll(".data").selectAll(function() {return this.childNodes;}).nodes();
 		graph.append("g")
 			.attr("class", "bins")
@@ -277,7 +361,7 @@ var bin_average = function(){
 			.on("end", function(d,i){
 						//If the last averaging bin has appeared
 						if (i==(data[bin+"_extents"].length-1)){
-							xScale = bandScale.domain(x_domain[bin]);
+							xScale = bandScale.domain(x_domain[bin]());
 							graph.selectAll("g.bins")
 								.selectAll("rect")
 								.data(data[bin][stimuli_display_number])
@@ -293,45 +377,39 @@ var bin_average = function(){
 								.attr("stroke-width",2)
 								.on("start", function(d,j){
 									spike_nodes.slice(j,j*bin_width).map(node=>node.remove());
-									if (j==(x_domain[bin].length-1)){
+									if (j==(x_domain[bin]().length-1)){
 										transition_y_axis("Average Firing Rate", "continuous");
 										transition_x_axis("Time Bins (ms)", "bins", data[bin+"_extents"]);
 									}})
 								.on("end", function(d,j){
-									if (j==(x_domain[bin].length-1)){
-										yScale.domain(y_domain[bin]);
-										graph.selectAll("g.bins")
-											.selectAll("rect")
-											.transition()
-											.delay(500)
-											.duration(1000)
-											.attr("y",d=>yScale(d))
-											.on("end", function(d,j){
+									if (j==0){
+										let data_length = data[bin][stimuli_display_number].length;
+										new Promise((resolve, reject)=>resolve(draw_average_firing_rate(yScale, yScale.domain())))
+											.then(()=>yScale.domain(y_domain[bin]()))
+											.then(function(){
 												graph.selectAll("g.bins")
 													.selectAll("rect")
-													.data(data[bin][stimuli_display_number].concat(data[bin][stimuli_display_number]))
-													.enter()
-													.append("rect")
-													.attr("x",(d,j)=>xScale(j))
-													.attr("width", 2)
-													.attr("y", d=>yScale(d))
-													.attr("height", function(d,j){
-														console.log("here");
-														console.log(j)
-														if (j==data[bin][stimuli_display_number].length){
-															return 0;
+													.transition()
+													.delay(500)
+													.duration(1000)
+													.attr("y", function(d,j){
+														if (j>data_length && d<data[bin][stimuli_display_number][j-data_length-1]){
+															y_value = yScale(data[bin][stimuli_display_number][j-data_length-1])
 														} else {
-															let y_diff = Math.abs(d-data[bin][stimuli_display_number][j-1]);
-															return yScale(y_diff);
+															y_value = yScale(d)
 														}
+														return y_value;
 													})
-													.attr("rx", 1/2)
-													.attr("ry", 1/2)
-													.attr("stroke", "#000000")
-													.attr("stroke-width",2);
-											});
-											
-										transition_y_axis("Average Firing Rate", "continuous", 500, 1000);
+													.attr("height", function(d,j){
+														height=2
+														if (j>data_length){
+															let y_diff = Math.abs(d-data[bin][stimuli_display_number][j-data_length-1]);
+															height= yScale(yScale.domain()[1]-y_diff);
+														}
+														return height;
+													});
+												transition_y_axis("Average Firing Rate", "continuous", 500, 1000);
+											})
 									}
 
 								});
