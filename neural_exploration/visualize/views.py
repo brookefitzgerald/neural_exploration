@@ -68,7 +68,7 @@ def get_queryset_of_bin_size(i):
                 .get_model("visualize", "BinnedData")
                 .objects
                 .all()
-                .only(bin_size_dict[i], bin_size_dict[i]+"_extents"))
+                .only(bin_size_dict[i], bin_size_dict[i]+"_extents", "labels"))
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
 

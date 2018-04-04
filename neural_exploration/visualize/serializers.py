@@ -37,16 +37,19 @@ class FirstBinSerializer(serializers.Serializer):
     """JSON representation of the Binned Data"""
     bin_150_50 = serializers.ListField(child=InnerListField())
     bin_150_50_extents = serializers.ListField(child=IntInnerListField())
+    labels = serializers.ListField(child=serializers.CharField())
 
 
 class SecondBinSerializer(serializers.Serializer):
     """JSON representation of the Binned Data"""
     bin_100_30=serializers.ListField(child=InnerListField())
     bin_100_30_extents = serializers.ListField(child=IntInnerListField())
+    labels = serializers.ListField(child=serializers.CharField())
 
 
 class ThirdBinSerializer(serializers.Serializer):
     """JSON representation of the Binned Data"""
     bin_50_15=serializers.ListField(child=InnerListField())
     bin_50_15_extents = serializers.ListField(child=IntInnerListField())
+    labels = serializers.ListField(child=serializers.CharField())
 

@@ -91,6 +91,9 @@ class BinnedData(models.Model):
                 blank=True, null=True),
             blank=True, null=True)
 
+    labels= ArrayField(models.CharField(max_length=30, null=True, blank=True),
+        null=True, blank=True)
+
     bin_150_50_extents = ArrayField(
             ArrayField(
                 models.IntegerField(), blank=True,null=True),

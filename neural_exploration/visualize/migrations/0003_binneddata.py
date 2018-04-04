@@ -24,6 +24,7 @@ class Migration(migrations.Migration):
                 ('bin_150_50_extents', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.IntegerField(), blank=True, null=True, size=None), blank=True, null=True, size=None)),
                 ('bin_100_30_extents', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.IntegerField(), blank=True, null=True, size=None), blank=True, null=True, size=None)),
                 ('bin_50_15_extents', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.IntegerField(), blank=True, null=True, size=None), blank=True, null=True, size=None)),
+                ('labels', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=30, null=True), blank=True, null=True, size=None)),
                 ('site', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='visualize.Site')),
             ],
         ),

@@ -40,8 +40,12 @@ def forwards_func(apps, schema_editor):
                 bin_100_30= bin_100_30,
                 bin_100_30_extents= bin_100_30_extents,
                 bin_50_15= bin_50_15,
-                bin_50_15_extents= bin_50_15_extents)
+                bin_50_15_extents= bin_50_15_extents,
+                labels=site.labels_one)
             ])
+
+def backwards_func(apps,schema_editor):
+    apps.get_model("visualize", "BinnedData").objects.all().delete()
 
 
 class Migration(migrations.Migration):
@@ -51,5 +55,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(forwards_func),
+        migrations.RunPython(forwards_func, backwards_func),
     ]
