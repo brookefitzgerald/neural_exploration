@@ -9,14 +9,16 @@
 	</script>
 	<div class="container" id="container">
 		<div id='graph'>
-			<svg width="100%" height="100%">
+			<svg id="graph_svg" width="100%" height="100%">
 				<image id="brain" xlink:href="{% static 'images/brain.svg' %}" height='0' width='0'></image>
 			</svg>
 			<div class="row text-center" id="opt">
-				<div class="col text-center align-middle" id="btn-container">
+				<div class="col text-center" id="btn-container">
 				</div>
-				<div class="col text-center align-middle" id="stimuli-container" width="0" height="0">
-					<img id="stimuli" src="{% static 'images/stimuli.png' %}" width="100%" height="100%">
+				<div class="col text-center" id="stimuli-container" width="0" height="0">
+					<svg id="stimuli_svg" width="100%" height="100%">
+						<image id="stimuli" xlink:href="{% static 'images/stimuli.png' %}" width="0" height="0"></image>
+					</svg>
 				</div>
 			</div>
 
