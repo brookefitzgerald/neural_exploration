@@ -7,6 +7,8 @@ from rest_framework.response import Response
 
 from .serializers import DataSerializer, FirstBinSerializer, SecondBinSerializer, ThirdBinSerializer
 
+import ipdb
+
 
 def SpikeDataView(request):
     zhang_experiment = (
@@ -71,6 +73,19 @@ def get_queryset_of_bin_size(i):
                 .only(bin_size_dict[i], bin_size_dict[i]+"_extents", "labels"))
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def anova_from_bin_list(request, i):
+    try: 
+        data = ([bin.compute_ANOVA(i) for bin in apps
+                .get_model("visualize", "BinnedData")
+                .objects
+                .all()])
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        json_data = renderers.JSONRenderer().render(data)
+        return Response(json_data)    
 
 
 @api_view(['GET'])

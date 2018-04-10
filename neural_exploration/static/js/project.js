@@ -257,6 +257,9 @@ var norm_full_data = full_data.then(function(data){
 
 });
 
+var anova_data = dataLoad('http://'+host+'/spike/anova/'+bin_id).then(function(response){
+	let data = JSON.parse(response);
+	return data});
 
 function scroll_text(text_data, time){
 	svg.selectAll("text")

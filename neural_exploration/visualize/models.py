@@ -1,6 +1,10 @@
+from django.apps import apps
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
+
+import numpy as np
+from scipy.stats import f_oneway
 
 
 class Experiment(models.Model):
@@ -109,4 +113,25 @@ class BinnedData(models.Model):
 
     def __str__(self):
         return str(str(self.site) + '-bin')
+
+    def compute_ANOVA(self, bin):
+        # return the anova p-value of this neuron
+        bin_dict = {
+            "3": self.bin_50_15,
+            "2": self.bin_100_30,
+            "1": self.bin_150_50
+        }
+        data = bin_dict[bin]
+        label_grouped_data = {}
+        for n, label in enumerate(self.labels):            
+            if label in label_grouped_data:
+                label_grouped_data[label].append(data[n])
+            else:
+                label_grouped_data[label] = [data[n]]
+        
+        time_transposed_grouped_data = [np.transpose(group).tolist() for group in list(label_grouped_data.values())]
+
+        time_label_grouped_data = list(zip(*time_transposed_grouped_data))
+        p_list = [f_oneway(*time_bin)[1] for time_bin in time_label_grouped_data]
+        return p_list
 
