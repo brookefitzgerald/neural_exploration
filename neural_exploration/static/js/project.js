@@ -68,7 +68,7 @@ bin = {1: "bin_150_50", 2: "bin_100_30", 3: "bin_50_15"}[bin_id],
 bin_width = (isNaN(+bin.slice(4,7))? +bin.slice(4,6) : +bin.slice(4,7));
 
 
-var initial_data = dataLoad('http://'+host+'/spike/data/'+(neuron_display_number+1)).then(function(response){
+var initial_data = dataLoad('https://'+host+'/spike/data/'+(neuron_display_number+1)).then(function(response){
 	let data = JSON.parse(response);
 	data.data = data.data.map(trial=>trial.map(Number));
 	n_stimuli=data.data.length;
@@ -78,7 +78,7 @@ var initial_data = dataLoad('http://'+host+'/spike/data/'+(neuron_display_number
 		console.log(Error);
 });
 
-var binned_data = dataLoad('http://'+host+'/spike/bin/'+bin_id+'/'+(neuron_display_number+1)).then(
+var binned_data = dataLoad('https://'+host+'/spike/bin/'+bin_id+'/'+(neuron_display_number+1)).then(
 	function(response) {
 		let data = JSON.parse(response);
 		data[bin] = data[bin].map(trial=>trial.map(Number));
@@ -232,7 +232,7 @@ function normalize(single_neuron_data, cis){
 	return(to_return);
 }
 
-var full_data = dataLoad('http://'+host+'/spike/bin/'+bin_id+'/').then(function(response) {
+var full_data = dataLoad('https://'+host+'/spike/bin/'+bin_id+'/').then(function(response) {
 	// shape [n_neurons, [62, [31, 2]] d[0] = neuron 1
 	// d[0][0] = neuron 1 average color data length 62
 	var t0 = performance.now();
@@ -264,7 +264,7 @@ var norm_full_data = full_data.then(function(data){
 
 });
 
-var anova_data = dataLoad('http://'+host+'/spike/anova/'+bin_id).then(function(response){
+var anova_data = dataLoad('https://'+host+'/spike/anova/'+bin_id).then(function(response){
 	let data = JSON.parse(response);
 	return data});
 
@@ -1149,10 +1149,16 @@ function neuron_normalization(){
 		binned_data.then((data)=> draw_x_axis("Time bins before/after stimulus is shown (ms)", "bins", data[bin+"_extents"]));
 		draw_y_axis("Average Firing Rate (mHz)", "continous");
 		norm_full_data.then(function(data){
-			
 			[a_norm_color_data, a_norm_cis] = data[neuron_a_number];
 			[b_norm_color_data, b_norm_cis] = data[neuron_b_number];
-		
+			a_flat_data = flatten(flatten(a_average_color_data));
+			b_flat_data = flatten(flatten(b_average_color_data))
+			a_mean = d3.mean(a_flat);
+			b_mean = d3.mean(b_flat);
+			a_sd = d3.mean(a_flat);
+			b_sd = d3.mean(b_flat);
+			// draw average lines
+			//graph.data([a_mean,b_mean]).enter().append("rect", )
 
 
 		});
