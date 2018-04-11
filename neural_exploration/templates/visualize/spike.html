@@ -109,85 +109,65 @@
 				<p>Now that we have a good idea of what the firing rate for one neuron looks like for every stimulus over many different trials, we can now look at the average of many different neurons. </p>
 			</div>
 			<div class='section'>
-				<!-- 11: neuron_information_comparison -->
-				<h1>Thinking about information in neurons</h1>
-				<p>Every neuron responds to stimuli differently. This means that averaging them can lose information the data contains about which stimuli the monkey is looking at. </p>
+				<!-- 11: neuron_magnitude_comparison -->
+				<h1>Comparing information in neurons</h1>
+				<p>Every neuron responds to stimuli differently. Some neurons naturally fire very often and have a large average firing rate, like neuron A, but other neurons naturally have much lower average firing rates, like neuron B.  </p>
+			</div>
+			<div class='section'>
+				<!-- 12: neuron_normalization -->
+				<p>Therefore, to compare these neuron firing rates more effectively, we put them on the same scale, a process called normalization.</p>
+				<p> To do this, for each neuron we subtract its averaging firing rates by its mean and divide by its standard deviation. Now instead of plotting average firing rate over time, we plot the deviations away from the average firing rate over time.
+				</p>
+			</div>
+
+			<div class='section'>
+				<!-- 13: neuron_information_comparison -->
+				<h1>Combining information in neurons</h1>
+				<p>Before when we combined information from multiple trials, we averaged them together. However, averaging them can lose information the data contains about which stimuli the monkey is looking at. </p>
 				<p>For example, neuron A spikes only a few times when the [kiwi] stimulus appears, but neuron B spikes consistently after every stimulus appears. </p>
 				<p>This means that for figuring out when the monkey is looking at a [kiwi], neuron A is much more informative.</p>
 			</div>
 			<div class='section'>
-				<!-- 12: compared_neuron_averaging -->
+				<!-- 14: neuron_average -->
 				<p>However, if we average the two neurons, then we lose the information that neuron A had!
 				</p>
 			</div>
 			<div class='section'>
-				<!-- 13: compared_neuron_separation -->
+				<!-- 15: compared_neuron_separation -->
 				<p>We therefore need another way of combining information from different neurons that helps us figure out the answer to our experimental question: how does the brain process and store information about different images?</p>
 			</div>
 			<div class='section'>
-				<!-- 14: no_information_expectation -->
-				<p>
-				To answer this question, let's think about what we would expect to see.</p>
-				<p>In our experiment, the stimulus was shown after 500 ms of recording activity. If information about each stimulus wasn't being processed by the neurons, the average firing rate before the stimulus was shown should be the same as the average firing rate after the stimulus was shown. Furthermore, the average firing rates for one stimulus should be different from the others.</p>
-				<p>Let's figure out exactly how different they are!</p>
+				<!-- 16: time_bin_zoom_to_histogram -->
+				<p>Since we can’t as easily figure out if our experimental condition had an effect from averaging our entire neuron population, we need another technique.</p>
+				<p>As we saw before, the same neuron can respond very differently to multiple exposures to the same stimulus.</p>
+				<p>Thus we will use a statistical method that compares the distribution of average firing rates for each neuron and for every stimulus.</p>
 			</div>
 			<div class='section'>
-				<!-- 15: average_firing_rate_histogram -->
-				<h1>Calculating information with statistics</h1>
-				<p>There are a few ways that we can think about difference. We can think about each neuron having different average firing rates for every stimulus. </p>
-				<p>However, as we saw before, the same neuron can respond very differently to multiple exposures to the same stimulus. Thus we also need to look at the variability of the average firing rates for each neuron for every stimulus.</p>
-			</div>
-			<div class='section'>
-				<!-- 16: percent_selective_per_bin_hist_on_hover -->
-				<p>To do this, we'll run an ANalysis Of VAriance or ANOVA, a procedure that helps us figure out if the difference in the average firing rates between stimuli actually comes from our the different stimuli.  </p>
+				<!-- 17: stimuli_histogram_reveal -->
+				<p>We can then run an ANalysis Of VAriance or ANOVA, a procedure that helps us figure out if the difference in the firing rates between stimuli can be explained statistically by the different stimuli.  </p>
 				<p>More technically, ANOVA computes a statistic that gives us a measure of the likelihood that the differences in mean firing rates between stimuli is actually due to the different stimuli instead of just overall random chance.</p>
-				<p>For each time bin and neuron, we run an ANOVA and get a p-value describing the likelihood that the differences in average firing rate between stimuli is solely due to chance.</p>
 			</div>
 			<div class='section'>
-				<!-- 17: overall_percent_selective_top_three_filter-->
-				<p>Therefore, a very small p-value indicates that the different stimuli made a significant difference in the mean firing rates!</p>
-
-				<p>We can even look at what the most selective neurons at any point in time look like for different experimental conditions.</p>
+				<!-- 18: p_value_appear_time_bin -->
+				<p>For each time bin and neuron, we run an ANOVA and get a p-value describing the likelihood that the differences in average firing rate between stimuli is solely due to chance. </p>
 			</div>
 			<div class='section'>
-				<!-- 18: machine_animation-->
-				<h1>Calculating information with prediction</h1>
-				<p>Using ANOVA to figure out how much information is in our data is a good approach, but what if information about the experimental condition (in our case what the monkey is looking at) comes from more than just differences in the mean firing rate? One way to answer such a question is another technique neuroscientists use called decoding analysis. </p>
-
-				<p>The motivating idea behind decoding is that it is very difficult for humans to easily figure out how neurons represent information about stimuli. It's simply too hard to find patterns describing how every neuron represents every stimuli by hand. However, while it is difficult for humans to learn these types of patterns, computers can do so quite easily!</p>
-
-				<p>Decoding works by first using some of the data from an experiment to build a model to predict which stimulus the monkey was looking at. That model is then applied to the rest of the data to predict what the monkey is looking at. </p>
-			</div>
-			<div class='section' id='physical_machine'>
-				<!-- 19: data_predictive_accuracy_collected_in_time_bin_graph-->
-				<p>If our model was a physical machine, training the model would be like feeding the machine neuron spike trains and tweaking the machine settings machine whenever the predictions it gave us were wrong, then doing this over and over again with new data until the predictions are mostly right. This process of using computers to automatically identify patterns in data is called machine learning and is used in everything from face recognition to predicting stock market prices. (For a deeper explanation of how machine learning works, check out <a href=http://www.r2d3.us/visual-intro-to-machine-learning-part-1/>r2d3.us/visual-intro-to-machine-learning-part-1/</a>)</p>
-				<p>When the model's predictions are very accurate, it means that the data collected in the experiment contain a lot of information about the stimuli.</p>
-			</div>
-			<div class='section'>
-				<!-- 20: swapped_data_null_accuracy_collected_in_time_bin_graph -->
-				<p>But how do we know that the model isn’t making accurate predictions by chance? 
+				<!-- 19: percent_selective_over_time-->
+				<p>A very small p-value indicates that the different stimuli made a significant difference in the mean firing rates!</p>
+				<p>In this analysis, we’re looking for results that have a p-value of 0.01 or less, so we expect that before the stimulus was shown there is a 1% chance that the ANOVA would produce a positive result by chance.</p>
+				<p>Therefore, selectivity above the 1% mark tells us that our experimental condition produced different results in the brain. 
 				</p>
-				<p>What we can do is first create a large number of random data sets by randomly swapping labels on the data that we’ll feed our model. Then we can test our random models with the original data. Most of the time the new models will be perform no better than chance, but occasionally they will perform better than chance. </p>
 			</div>
 			<div class='section'>
-				<!--21: accuracy_compared_with_null_distribution_creation -->
-				<p>When our original model is more accurate than any of the random models, we can be pretty confident that our accuracy is not just due to chance! </p>
-			</div>
-			<div class='section'>
-				<!-- 22: predictions_with_most_selective_neurons-->
-				<p>We can then even combine the results of our ANOVA and decoding analyses, training new models on only the most selective neurons and seeing how accurate our predictions can be with fewer neurons. </p>
-			</div>
-			<div class='section'>
-				<!-- 23: what_we_learned-->
-				<p>These results can tell us a lot about our experiment!</p>
-				<p>First, we can see if information about a stimulus is contained in a large number of neurons or in only a few neurons.</p>
-				<p>Second, they can tell us if there are certain stimuli that are more easily identified by the neurons we have data from.</p>
-				<p>Third, they can give us an idea of how long it takes information about a stimulus to propagate through the brain. </p>
+				<!-- 20: decoding_shoutout -->
+				<p>ANOVA is an analysis technique that only looks at the variance of individual neurons, and while this website doesn’t cover them there are approaches such as neural population decoding that can integrate information about stimuli from an arbitrary number of neurons. </p>
 			</div>
 			<div class='section' id='conclusion'>
-				<!--24: conclusion-->
+				<!--21: conclusion-->
 				<h1>In conclusion</h1>
-				<p>Neuroscience is complicated, and nobody has all of the answers about how the brain works. However, the more data we get and the more we think about information and signal and chance and what that means for our experiment the more we’ll understand.</p> 
+				<p>Neuroscience is complicated, and nobody has all of the answers about how the brain works. </p>
+				<p> However, the data analysis techniques explored here can help us understand how long it takes information to propagate throughout the brain, how neurons respond more to certain stimuli than others, and about the proportion of neurons that statistically respond to the experimental conditions.</p>
+				<p> The more data we get and the more we think about information and signal and chance and what that means for our experiment the more we’ll understand.</p> 
 			</div>
 		</div>
 	</div>

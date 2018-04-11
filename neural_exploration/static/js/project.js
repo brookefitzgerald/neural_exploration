@@ -1034,6 +1034,7 @@ function confidence_intervals(){
 	});
 	return;
 }
+
 function neuron_flip_through(){
 	remove_all();
 	draw_stimuli_and_index_change_buttons("all", "neuron");
@@ -1055,44 +1056,36 @@ function neuron_flip_through(){
 	});
 	return;
 }
-function neuron_information_comparison(){
+
+function neuron_magnitude_comparison(){
 	remove_all();
 	return;
 }
-function compared_neuron_averaging(){
+function neuron_normalization(){
 	return;
 }
-function compared_neuron_separation(){
+function neuron_information_comparison(){
 	return;
 }
-function no_information_expectation(){
+function neuron_average(){
 	return;
 }
-function average_firing_rate_histogram(){
-	return;
-}
-function percent_selective_per_bin_hist_on_hover(){
-	return;
-}
-function overall_percent_selective_top_three_filter(){
-	return;
-}
-function machine_animation(){
+function time_bin_zoom_to_histogram(){
 	return;
 }
 function data_predictive_accuracy_collected_in_time_bin_graph(){
 	return;
 }
-function swapped_data_null_accuracy_collected_in_time_bin_graph(){
+function stimuli_histogram_reveal(){
 	return;
 }
-function accuracy_compared_with_null_distribution_creation(){
+function p_value_appear_time_bin(){
 	return;
 }
-function predictions_with_most_selective_neurons(){
+function percent_selective_over_time(){
 	return;
 }
-function what_we_learned(){
+function decoding_shoutout(){
 	return;
 }
 function conclusion(){
@@ -1111,20 +1104,17 @@ var section_animations = {
 	8: trial_average,
 	9: confidence_intervals,
 	10: neuron_flip_through,
-	11: neuron_information_comparison,
-	12: compared_neuron_averaging,
-	13: compared_neuron_separation,
-	14: no_information_expectation,
-	15: average_firing_rate_histogram,
-	16: percent_selective_per_bin_hist_on_hover,
-	17: overall_percent_selective_top_three_filter,
-	18: machine_animation,
-	19: data_predictive_accuracy_collected_in_time_bin_graph,
-	20: swapped_data_null_accuracy_collected_in_time_bin_graph,
-	21: accuracy_compared_with_null_distribution_creation,
-	22: predictions_with_most_selective_neurons,
-	23: what_we_learned,
-	24: conclusion
+	11: neuron_magnitude_comparison,
+	12: neuron_normalization,
+	13: neuron_information_comparison,
+	14: neuron_average,
+	15: compared_neuron_separation,
+	16: time_bin_zoom_to_histogram,
+	17: stimuli_histogram_reveal,
+	18: p_value_appear_time_bin,
+	19: percent_selective_over_time,
+	20: decoding_shoutout,
+	21: conclusion
 }
 
 d3.graphScroll()
