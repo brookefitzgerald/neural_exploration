@@ -7,8 +7,6 @@ from rest_framework.response import Response
 
 from .serializers import DataSerializer, FirstBinSerializer, SecondBinSerializer, ThirdBinSerializer
 
-import ipdb
-
 
 def SpikeDataView(request):
     zhang_experiment = (
