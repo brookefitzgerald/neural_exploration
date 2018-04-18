@@ -477,10 +477,8 @@ function draw_stimuli_and_index_change_buttons(type="one", to_change="trial"){
 }
 var current_pre_status = "inactive",
 	current_post_status = "active";
-//<label class="blue"><input type="radio" name="toggle"><span>$20</span></label>
-  //  <label class="green"><input type="radio" name="toggle"><span>$50</span></label>
 function draw_time_bin_buttons(){
-	$("#btn-text").text("Change Time Bin");
+	$("#btn-text").text("Time Bin");
 	d3.select("div#btn-container")
 		.append("label")
 		.attr("class", current_pre_status)
@@ -506,7 +504,6 @@ function draw_time_bin_buttons(){
 		.attr("type", "radio")
 		.attr("id", "post")
 		.on('change', function(){
-			console.log("changed");
 			if (current_post_status=="inactive"){
 				d3.select("label."+current_pre_status).attr("class", "inactive");
 				current_pre_status = "inactive"; 
@@ -630,11 +627,7 @@ function transition_x_axis(x_label, type, bin_extents=null, delay=0, duration=0)
 	} else if (type=="hist"){
 		let front_x_displacement = xScale.invert(w/31),
 			values = range(xScale.domain()[1]-front_x_displacement, 10).map(n=>n+front_x_displacement);
-		console.log('values', values);
-		xAxis.tickFormat(function(n){
-			console.log("n",n);
-			console.log("formatted_n",round(n-front_x_displacement));
-			return round(n-front_x_displacement)})
+		xAxis.tickFormat(n=> round(n-front_x_displacement))
 			.tickValues(values);
 		var transform = "translate(0,0)",
 			y_displacement = 30;
@@ -704,7 +697,8 @@ function draw_spikes(){
 	xScale.domain(x_domain.full());
 	yScale.domain(y_domain.full()); 
 	initial_data.then(function(data){
-	if (get_active_section()==bin_average){
+	let current_section =get_active_section();
+	if ((current_section==bin_average)||(current_section==show_stimuli)||(current_section==single_neuron_spike_train)){
 		graph.append("g")
 		.attr("class", "data")
 		.selectAll("rect")
@@ -1792,7 +1786,6 @@ function time_bin_zoom_to_histogram(){
 		setTimeout(transition_box_to_touch_yaxis(time_ran),4000);
 		function transition_box_to_touch_yaxis(t){return function(){
 			if ((get_active_section()==time_bin_zoom_to_histogram)&&(t==time_ran)){
-				console.log("here");
 				graph.select("rect.emphasis")
 					.transition().duration(1000)
 					.attr("x", xScale(0));
@@ -1987,7 +1980,6 @@ function stimuli_histogram_reveal(){
 		function color_hist_by_stim(t){return function(){
 			if ((get_active_section()==stimuli_histogram_reveal)&&(t==time_ran)){
 				old_x = xScale.copy();
-				console.log(color_bin_data_list);
 				graph.selectAll(".color")
 					.data(flatten(color_bin_data_list))
 					.enter()
@@ -2007,8 +1999,6 @@ function stimuli_histogram_reveal(){
 					.on("end", function(){
 						graph.selectAll(".bar").remove();
 					});
-				console.log("max_num", max_num);
-				console.log("starting_x_vals", starting_x_vals);					
 			}
 		}};
 		setTimeout(show_stim_hists(time_ran),4000);
