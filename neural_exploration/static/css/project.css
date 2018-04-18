@@ -30,6 +30,35 @@
   stroke-width: 10px;
 }
 
+#btn-container {
+    margin:4px;
+}
+#btn-container label {
+    width:90px;
+    margin:4px;
+    background-color:#EFEFEF;
+    border-radius:4px;
+    border:1px solid #D0D0D0;
+    overflow:auto;
+       
+}
+
+#btn-container label span {
+    text-align:center;
+    font-size: 13px;
+    padding:5px 0px;
+    display:block;
+}
+
+#btn-container label input {
+    appearance: none;
+    display:none;
+}
+
+#btn-container input:checked + span {
+    background-color:#404040;
+    color:#F7F7F7;
+}
 .track-inset {
   stroke: #ddd;
   stroke-width: 8px;
