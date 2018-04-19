@@ -18,14 +18,14 @@ window.onresize = function(){
 };
 
 function round(number, precision=0) {
-  var shift = function (number, precision, reverseShift) {
+	var shift = function (number, precision, reverseShift) {
 	if (reverseShift) {
-	  precision = -precision;
-	}  
+		precision = -precision;
+	}	
 	numArray = ("" + number).split("e");
 	return +(numArray[0] + "e" + (numArray[1] ? (+numArray[1] + precision) : precision));
-  };
-  return shift(Math.round(shift(number, precision, false)), precision, true);
+	};
+	return shift(Math.round(shift(number, precision, false)), precision, true);
 }
 
 function range(x, by=1){
@@ -44,7 +44,9 @@ bandScale = d3.scaleBand().range([0, w]),
 xAxis = d3.axisBottom(xScale);
 
 // setup y
-var yScale = d3.scaleLinear().range([h, 0]), // value -> display
+var logScale = d3.scaleLog().base([10]).range([h,0]),
+yLinearScale = d3.scaleLinear().range([h, 0]), // value -> display
+yScale = yLinearScale,
 yAxis = d3.axisLeft(yScale);
 
 // variables for color
@@ -70,13 +72,15 @@ bin_id = 2,
 bin = {1: "bin_150_50", 2: "bin_100_30", 3: "bin_50_15"}[bin_id],
 bin_width = (isNaN(+bin.slice(4,7))? +bin.slice(4,6) : +bin.slice(4,7)),
 time_bin_index=post_time_bin_index,
-url_prepend =  (host=="localhost:8000")? 'http://'+host:"https://"+host;
+url_prepend =	(host=="localhost:8000")? 'http://'+host:"https://"+host;
 
 //variables for easy computation
 var a_mean=0,
 b_mean=0,
 a_sd=0,
-b_sd=0;
+b_sd=0,
+slider_has_not_been_set=true,
+curr_val_index = 9;
 
 var initial_data = dataLoad(url_prepend+'/spike/data/'+(neuron_display_number+1)).then(function(response){
 	let data = JSON.parse(response);
@@ -376,8 +380,41 @@ function zoom_to_neuron(){
 }
 
 function neuron_spike(){
+	var points = [
+		[480, 200],
+		[580, 400],
+		[680, 100],
+		[780, 300],
+		[180, 300],
+		[280, 100],
+		[380, 400]
+	];
 	remove_data();
+	/*
+	var path = svg.append("path")
+		.data([points])
+		.attr("d", d3.line()
+			.x(function(d) { return x; })
+			.y(function(d) { return y; })
+			.curve(d3.curveCardinal()));
 
+	svg.append("path")
+		.attr("d", line)
+		.call(transition);
+
+	function transition(path) {
+		path.transition()
+				.duration(7500)
+				.attrTween("stroke-dasharray", tweenDash)
+				.each("end", function() { d3.select(this).call(transition); });
+	}
+
+	function tweenDash() {
+		var l = this.getTotalLength(),
+				i = d3.interpolateString("0," + l, l + "," + l);
+		return function(t) { return i(t); };
+	}
+	}*/
 	svg.select("image#neur-image")
 		.attr("x", 0)
 		.attr("y",0)
@@ -646,16 +683,17 @@ function transition_x_axis(x_label, type, bin_extents=null, delay=0, duration=0)
 		.attr("transform", transform));
 }
 
-function draw_y_axis(y_label="Average Firing Rate (mHz)", type="continuous"){
+function draw_y_axis(y_label="Average Firing Rate (mHz)", type="continuous", format_func=null){
 	yAxis = d3.axisLeft(yScale);
 	// y-axis
+	var tick_values = null;
+	// y-axis
 	if (type=="boolean"){
-		yAxis.tickValues([0,1])
-		.tickFormat(d3.format(".1"));
-	} else if (type=="continuous"){
-		yAxis.tickValues(null)
-		.tickFormat(null);
+		format_func = d3.format(".1")
+		tick_values = [0,1];
 	}
+	yAxis.tickValues(tick_values)
+		.tickFormat(format_func);
 	if (graph.selectAll("g.y").nodes().length==0){
 		graph.append("g")
 		.attr("class", "y axis");
@@ -672,16 +710,16 @@ function draw_y_axis(y_label="Average Firing Rate (mHz)", type="continuous"){
 	.text(y_label);
 }
 
-function transition_y_axis(y_label="Average Firing Rate (mHz)", type="continuous", delay=0, duration=1000) {
+function transition_y_axis(y_label="Average Firing Rate (mHz)", type="continuous", delay=0, duration=1000, format_func = null) {
 	yAxis = d3.axisLeft(yScale);
+	var tick_values = null;
 	// y-axis
 	if (type=="boolean"){
-		yAxis.tickValues([0,1])
-		.tickFormat(d3.format(".1"));
-	} else if (type=="continuous"){
-		yAxis.tickValues(null)
-		.tickFormat(null);
+		format_func = d3.format(".1")
+		tick_values = [0,1];
 	}
+	yAxis.tickValues(tick_values)
+		.tickFormat(format_func);
 	return(graph.select('.y')
 	.transition()
 	.delay(delay)
@@ -907,6 +945,20 @@ function getRandomSubarray(arr, size) {
 	return shuffled.slice(min);
 }
 
+function shuffle (array) {
+	var i = 0
+		, j = 0
+		, temp = null;
+
+	for (i = array.length - 1; i > 0; i -= 1) {
+		j = Math.floor(Math.random() * (i + 1));
+		temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+	}
+	return array
+}
+
 function get_polygon_data(ci_list){
 	polygon_data = [];
 	for (var i = 0; i<ci_list.length; i++) {
@@ -1046,14 +1098,18 @@ function trial_average(){
 		
 	}});
 }
+function change_prop_index(event_x){
+	prop_index = event_x*10-1;
+	restart_active_animation();
+}
 
-function draw_slider(){
+function draw_slider(label_text = "Percent of data used", values = range(10).map(d=>round(d/10+0.1, 1)), end_function=change_prop_index, format_func = function(d) { return (d*10+10)+"%";}){
 	let slider_margin = {left: 15, right: 15},
 	width = $("#btn-container").width()-slider_margin.left-slider_margin.right,
 	height = 40;
 	var x = d3.scaleQuantize()
 	.domain([0, width])
-	.range(range(10).map(d=>round(d/10+0.1, 1)));
+	.range(range(values.length));
 	let slider_svg = d3.select("#btn-container").append("svg")
 	.attr("class", "slider_svg")
 	.attr("width", width+slider_margin.left+slider_margin.right)
@@ -1074,12 +1130,13 @@ function draw_slider(){
 	.call(d3.drag()
 		.on("start.interrupt", function() { slider.interrupt(); })
 		.on("start drag", function() { 
-			handle.attr("cx", width*x(d3.event.x)); 
+			handle.attr("cx", width/values.length*x(d3.event.x)+width/values.length); 
+			curr_val_index = x(d3.event.x);
 	})
 		.on("end", function() {
-			handle.attr("cx", width*x(d3.event.x));
-			prop_index = x(d3.event.x)*10-1;
-			restart_active_animation();
+			handle.attr("cx", width/values.length*x(d3.event.x)+width/values.length);
+			curr_val_index = x(d3.event.x);
+			end_function(values[x(d3.event.x)]);
 		}));
 	slider.insert("g", ".track-overlay")
 	.attr("class", "ticks")
@@ -1087,15 +1144,15 @@ function draw_slider(){
 	.selectAll("text")
 	.data(x.range())
 	.enter().append("text")
-	.attr("x",d=>d*width)
+	.attr("x",(d,i)=>width/values.length*i+width/values.length)
 	.attr("text-anchor", "middle")
-	.text(function(d) { return d*100+"%";});
+	.text(d=>format_func(d));
 
 	var handle = slider.insert("circle", ".track-overlay")
 	.attr("class", "handle")
 	.attr("r", 9)
-	.attr("cx", width*round(prop_index/10+0.1, 1));
-	$("#btn-text").text("Percent of data used")
+	.attr("cx", width/values.length*curr_val_index+width/values.length);
+	$("#btn-text").text(label_text)
 }
 
 function remove_slider(){
@@ -1354,6 +1411,20 @@ function normalize_single_neuron(t, name,d3_data, sub_mean_avg, sub_mean_cis, no
 			});
 	}};}
 }
+
+function label_graph(text, font_size){
+	var label = graph.select("g.annotate").select("text");
+	if (label.nodes().length==0){
+		graph.append("g").attr("class","annotate");
+		label = graph.select("g.annotate").append("text");
+	} else {
+		label.transition().attr("y", -h/2);
+	}
+	label.text(text).attr("font-size", font_size).attr("x", w/2).attr("text-anchor","middle").attr("y",-15).attr("opacity",1e-6)
+	.transition().attr("opacity" , 1);
+
+}
+
 var time_ran = performance.now();
 
 function neuron_normalization(){
@@ -1401,7 +1472,7 @@ function neuron_normalization(){
 			var full_sub_data = flatten(flatten(a_sub_mean_cis.concat(b_sub_mean_cis))),
 				full_norm_data = flatten(flatten(a_norm_cis.concat(b_norm_cis))), 
 				domain_map = {"A": [d3.min(flatten(flatten(a_confidence_intervals))),d3.max(flatten(flatten(a_confidence_intervals)))],
-							  "B": [d3.min(flatten(flatten(b_confidence_intervals))),d3.max(flatten(flatten(b_confidence_intervals)))]};
+								"B": [d3.min(flatten(flatten(b_confidence_intervals))),d3.max(flatten(flatten(b_confidence_intervals)))]};
 			a_norm_color_data = flatten(d3ify_avg_color_data(a_norm_color_data));
 			b_norm_color_data = flatten(d3ify_avg_color_data(b_norm_color_data));
 			// fade out b
@@ -1464,7 +1535,7 @@ function neuron_normalization(){
 			setTimeout(normalize_b(time_ran), 13500);
 			function normalize_b(t) {return function() {
 				if ((t==time_ran) && (get_active_section()==neuron_normalization)){
-				   	normalize_single_neuron(t, "B",d3_data, b_sub_mean_color_data, b_sub_mean_cis, b_norm_color_data, b_norm_cis,
+					 	normalize_single_neuron(t, "B",d3_data, b_sub_mean_color_data, b_sub_mean_cis, b_norm_color_data, b_norm_cis,
 					domain_map, graph.selectAll("polygon.ci"), graph.select("g.bins").selectAll("rect"));
 			}};}
 
@@ -1546,7 +1617,7 @@ function neuron_average(){
 					transition_labels_with_bounding_box([{x: data_length-1, y: 0}], 1000);
 					transition_y_axis("Standard Deviations Away From Mean Firing Rate");
 					draw_average_firing_rate(a_norm_color_data, data_length,2, 1e-6);
-					draw_label_with_bounding_box("A", text_size,  data_length-1, 0, label_g).attr("opacity", 1e-6);
+					draw_label_with_bounding_box("A", text_size,	data_length-1, 0, label_g).attr("opacity", 1e-6);
 				});
 			}
 		}};
@@ -1608,7 +1679,7 @@ function compared_neuron_separation(){
 			draw_average_firing_rate(average_color_data, data_length,2, 1);
 			label_g = graph.append("g").attr("class", "label");
 			draw_label_with_bounding_box("Mean", 28, data_length-7, 0, label_g, "Mean");
-			draw_label_with_bounding_box("A", text_size,  data_length-1, 0, label_g).attr("opacity", 1e-6)
+			draw_label_with_bounding_box("A", text_size,	data_length-1, 0, label_g).attr("opacity", 1e-6)
 		});
 		setTimeout(mean_dissappear_a_appear(time_ran),2000);
 		function mean_dissappear_a_appear(t){return function(){
@@ -1745,7 +1816,7 @@ function time_bin_zoom_to_histogram(){
 			draw_average_firing_rate(t_20_color_data_original, data_length,2, 1);
 			graph.select("g.bins").selectAll("rect").attr("class", "slice");
 			label_g = graph.append("g").attr("class", "label");
-			draw_label_with_bounding_box("A", text_size,  data_length-1, 0, label_g);
+			draw_label_with_bounding_box("A", text_size,	data_length-1, 0, label_g);
 		});
 		setTimeout(draw_box_around_time_bin(time_ran),1000);
 		function draw_box_around_time_bin(t){return function(){
@@ -1770,6 +1841,7 @@ function time_bin_zoom_to_histogram(){
 				d.x=(i>1 && i<5)?xScale.bandwidth():0;
 				return d;
 			}));
+			console.log(moving_ci_data);
 		}};
 		setTimeout(fade_out_full_data(time_ran),2000);
 		function fade_out_full_data(t){return function(){
@@ -1809,7 +1881,7 @@ function time_bin_zoom_to_histogram(){
 		setTimeout(transition_to_full_data(time_ran),5000);
 		function transition_to_full_data(t){return function(){
 			if ((get_active_section()==time_bin_zoom_to_histogram)&&(t==time_ran)){
-				transition_confidence_intervals(graph.selectAll("polygon.slice"), 0.25, 1000);	
+				transition_confidence_intervals(graph.selectAll("polygon.slice").data(moving_ci_data), 0.25, 1000);
 				transition_y_axis("Standard Deviations Away From Mean Firing Rate", "continous");
 				graph.selectAll("rect.slice")
 					.transition()
@@ -1892,8 +1964,11 @@ function stimuli_histogram_reveal(){
 			.thresholds(thresholds)
 			(norm_color_data),
 			x_front_offset = w/31+2;
+			console.log(bins)
+			console.log(full_domain);
 		xScale = bandScale;
 		xScale.domain(x_domain[bin]());
+		yScale = yLinearScale;
 		yScale.domain(full_domain);
 
 		var color_bin_list = [],
@@ -2041,12 +2116,355 @@ function stimuli_histogram_reveal(){
 	});
 };
 
-
-function p_value_appear_time_bin(){
-	return;
+function d3ify_p_value_data(p_value_data){
+	if (typeof p_value_data[0].length =="undefined"){
+		p_value_data = [p_value_data];
+	}
+	var to_return=[];
+	for (var i=0; i<p_value_data.length;i++){
+		to_return = to_return.concat(p_value_data[i].map(function(p, i){
+			return {y: p, x: i}
+		}))
+	}
+	return to_return
 }
+function draw_multi_histogram(passed_section, bins, full_domain){
+	var starting_x_vals = [],
+		ending_x_vals = [],
+		x_between_offset = w/62,
+		x_front_offset = w/30+2;
+	
+	var color_bin_list = [];
+	for (var i=0; i<bins.length; i++){
+		color_bin_list[i] = bins[i].reduce(return_counts, {})
+	}
+	var color_map_to_zero = JSON.parse(JSON.stringify(color_to_ind_map));
+		Object.keys(color_map_to_zero).map(function(key, index) {
+			color_map_to_zero[key] =0;
+	});
+	var max_num = color_bin_list.reduce(function(aggregate, prev){
+		for (color in prev){
+			aggregate[color] = Math.max(aggregate[color], prev[color])
+		}
+		return aggregate
+	}, color_map_to_zero);
+	yScale = yLinearScale;
+	yScale.domain(full_domain);
+
+	xScale = linearScale;
+	xScale.domain([0,d3.sum(Object.values(max_num))]).range([0,w-x_between_offset*ind_to_color_map.length-x_front_offset]);
+	draw_x_axis("Number of Trials", "hist");
+	transition_multi_hist_axis(starting_x_vals, ending_x_vals, x_front_offset,0);
+	draw_y_axis("Standard Deviations Away From Mean Firing Rate", "continous");
+	color_bin_data_list = color_bin_list.map(function(bin, bin_ind){
+		var datafied_colors = []
+		// get [x: prev x's + x(n), width: x(n), c:c, y: y(bin.x1), height: bin height]
+		sorted_colors = Object.keys(bin).sort((color_a,color_b)=>color_to_ind_map[color_a]-color_to_ind_map[color_b]);
+		for (var i = 0; i < sorted_colors.length; i++) {
+			color = sorted_colors[i];
+			datafied_colors[i] = {
+				c: color, 
+				width: xScale(bin[color]),
+				x: (i==0)? x_front_offset: d3.sum(datafied_colors, d=>d.width)+x_front_offset,
+				y: yScale(bins[bin_ind].x1),
+				height: d3.max([Math.abs(yScale(bins[bin_ind].x0)-yScale(bins[bin_ind].x1))-2,0])
+			}
+		}
+		return datafied_colors
+	});
+	setTimeout(show_stim_hists(time_ran),0);
+	function show_stim_hists(t){return function(){
+		if ((get_active_section()==passed_section)&&(t==time_ran)){
+			
+			setTimeout(function(){
+				for (color in color_to_ind_map) {
+					ind = color_to_ind_map[color];
+					starting_x_vals[ind] = (ind==0)?0: ending_x_vals[ind-1]+x_between_offset;
+					ending_x_vals[ind] = (ind==0)? xScale(max_num[color]): starting_x_vals[ind]+xScale(max_num[color]);
+				}
+				graph.selectAll(".color")
+					.data(flatten(color_bin_data_list))
+					.enter()
+					.append("rect")
+					.attr("class", "color")
+					.attr("y", d=>d.y)
+					.attr("height", d=>d.height)
+					.attr("stroke", "#909090")
+					.attr("stroke-width", 1)
+					.attr("fill", d=>d.c)
+					.attr("width", d=>d.width)
+					.attr("x", d=>x_front_offset+starting_x_vals[color_to_ind_map[d.c]]);
+				
+			},5);
+		}
+	}};
+	setTimeout(display_p_value(time_ran), 1000);
+	function display_p_value(t){return function(){
+		if ((get_active_section()==passed_section)&&(t==time_ran)){
+			anova_data.then(function(data){
+				graph.append("g").attr("class","label");
+				draw_label_with_bounding_box("P-value: "+(""+data[neuron_a_number][time_bin_index]).replace(/.[0-9]*e/, "e"),
+					20, w*.75, h/4,
+					graph.select("g.label"),"pval", false)
+					.attr("opacity", 1e-6)
+					.transition()
+					.duration(1000)
+					.attr("opacity", 1);
+				;
+			})
+		}}}
+}
+var alpha = 0.01
+function p_value_appear_time_bin(){
+	remove_all();
+	time_ran = performance.now();
+	if (slider_has_not_been_set){
+		curr_val_index = 2;
+		slider_has_not_been_set=false;
+	}
+	anova_data.then(function(data){
+	if (get_active_section()==p_value_appear_time_bin){
+		draw_stimuli("all");
+		var first_data = data[neuron_a_number];
+		first_data = d3ify_p_value_data(first_data);
+		var full_p_data = d3ify_p_value_data(data),
+			min_p = d3.min(full_p_data, d=>d.y),
+			step_size  = 15,
+			n_repeats = full_p_data.length/step_size,
+			interval = 10;
+		draw_slider("Alpha Value", range(7).map(d=>Math.pow(10, -d)), draw_anova, function(d) { 
+			return (d==0)?1:"10"+formatPower(d,true);
+		});		
+		xScale = bandScale;
+		xScale.domain(x_domain[bin]());
+		yScale = logScale;
+		yScale.domain([min_p, 1]).clamp(true);
+		setTimeout(function(){
+			binned_data.then((bin_data)=> draw_x_axis("Time bins before/after stimulus is shown (ms)", "bins", bin_data[bin+"_extents"]));
+			draw_y_axis("P-value of ANOVA", "continous", function(d) { 
+				let sig_fig = Math.abs(Math.round(Math.log(d) / Math.LN10 * 1e6) / 1e6);
+				return (sig_fig==0)?1:"10"+formatPower(sig_fig,true);
+			});
+		
+			graph.append("g").attr("class", "anova")
+				.selectAll("rect")
+				.data(first_data)
+				.enter()
+				.append("rect")
+				.attr("x", d=>xScale(d.x))
+				.attr("y", d=>yScale(d.y))
+				.attr("fill",function(d){
+					return (d.y<=alpha)?"#5cb85c":"#000";
+				})
+				.attr("width", xScale.bandwidth())
+				.attr("height", 1);
+			graph.append("rect")
+				.attr("class", "alpha")
+				.attr("y", yScale(alpha))
+				.attr("x", 0)
+				.attr("width", w)
+				.attr("stroke", "#EF476F")
+				.attr("fill" ,"#EF476F")
+				.attr("height", 2);
+		},2);
+
+
+		setTimeout(draw_random_samples(time_ran), 500);
+		function draw_random_samples(time){return function(){
+			if ((get_active_section()==p_value_appear_time_bin)&&(time==time_ran)){
+				var shuffled_full = shuffle(full_p_data),
+					sampled_data=first_data;
+				var t = d3.interval(function(elapsed) {
+					if ((get_active_section()==p_value_appear_time_bin)){
+						var i = Math.round(elapsed/interval);
+						sampled_data = sampled_data.concat(shuffled_full.slice(step_size*i, step_size*i+step_size));
+						graph.select("g.anova")
+							.selectAll("rect")
+							.data(sampled_data)
+							.enter()
+							.append("rect")
+							.attr("x", d=>xScale(d.x))
+							.attr("y", d=>yScale(d.y))
+							.attr("fill",function(d){
+								return (d.y<=alpha)?"#5cb85c":"#000";
+							})
+							.attr("width", xScale.bandwidth())
+							.attr("height", 1);
+					} if ((elapsed > interval*n_repeats)|| get_active_section()!=p_value_appear_time_bin){ 
+						graph.select("g.anova")
+							.selectAll("rect")
+							.data(sampled_data)
+							.enter()
+							.append("rect")
+							.transition()
+							.duration(0)
+							.attr("x", d=>xScale(d.x))
+							.attr("y", d=>yScale(d.y))
+							.attr("fill",function(d){
+								return (d.y<=alpha)?"#5cb85c":"#000";
+							})
+							.attr("width", xScale.bandwidth())
+							.attr("height", 1);
+						t.stop();
+					}
+				}, interval);
+		}}}
+
+	/*setTimeout(show_stim_hists(time_ran),4000);
+		function show_stim_hists(t){return function(){
+			if ((get_active_section()==stimuli_histogram_reveal)&&(t==time_ran)){
+				xScale.domain([0,d3.sum(Object.values(max_num))]).range([0,w-x_between_offset*ind_to_color_map.length-x_front_offset]);
+				setTimeout(function(){
+					for (color in color_to_ind_map) {
+						ind = color_to_ind_map[color];
+						starting_x_vals[ind] = (ind==0)?0: ending_x_vals[ind-1]+x_between_offset;
+						ending_x_vals[ind] = (ind==0)? xScale(max_num[color]): starting_x_vals[ind]+xScale(max_num[color]);
+					}
+					graph.selectAll(".color")
+						.transition()
+						.duration(1000)
+						.attr("width", d=>xScale(old_x.invert(d.width)))
+						.attr("x", d=>x_front_offset+starting_x_vals[color_to_ind_map[d.c]]);
+					transition_multi_hist_axis(starting_x_vals, ending_x_vals, x_front_offset);
+				},5);
+			}
+		}};
+		setTimeout(display_p_value(time_ran), 5000);
+		function display_p_value(t){return function(){
+			if ((get_active_section()==stimuli_histogram_reveal)&&(t==time_ran)){
+				anova_data.then(function(data){
+					graph.append("g").attr("class","label");
+					draw_label_with_bounding_box("P-value: "+(""+data[neuron_a_number][time_bin_index]).replace(/.[0-9]*e/, "e"),
+						20, w*.75, h/4,
+						graph.select("g.label"),"pval", false)
+						.attr("opacity", 1e-6)
+						.transition()
+						.duration(1000)
+						.attr("opacity", 1);
+					;
+				})
+			}
+		}}*/
+
+	}});
+}
+function draw_anova(event_x){
+	alpha = event_x;
+	restart_active_animation();
+}
+var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+formatPower = function(d, minus=false) { 
+	var to_return = (d + "").split("").map(function(c) { return superscript[c]; }).join(""); 
+	if (minus){
+		to_return = "⁻"+to_return;
+	}
+	return to_return;
+}
+
 function percent_selective_over_time(){
-	return;
+	remove_all();
+	time_ran = performance.now();
+	if (slider_has_not_been_set){
+		curr_val_index = 2;
+		slider_has_not_been_set=false;
+	}
+	anova_data.then(function(data){
+	if (get_active_section()==percent_selective_over_time){
+		draw_stimuli("all");
+		var full_p_data = d3ify_p_value_data(data),
+			min_p = d3.min(full_p_data, d=>d.y),
+		
+		yScale = logScale;
+		yScale.domain([min_p, 1]);
+		xScale = bandScale;
+		xScale.domain(x_domain[bin]());
+
+		setTimeout(function(){
+			binned_data.then((bin_data)=> draw_x_axis("Time bins before/after stimulus is shown (ms)", "bins", bin_data[bin+"_extents"]));
+			draw_y_axis("P-value of ANOVA", "continous", function(d) { 
+				let sig_fig = Math.abs(Math.round(Math.log(d) / Math.LN10 * 1e6) / 1e6);
+				return (sig_fig==0)?1:"10"+formatPower(sig_fig,true);
+			});
+			draw_slider("Alpha Value",range(7).map(d=>Math.pow(10, -d)), draw_anova, function(d) { 
+				return (d==0)?1:"10"+formatPower(d,true);
+			});
+			graph.append("g")
+				.attr("class","anova")
+				.selectAll("rect")
+				.data(full_p_data)
+				.enter()
+				.append("rect")
+				.attr("x", d=>xScale(d.x))
+				.attr("y", d=>yScale(d.y))
+				.attr("class", function(d){
+					return (d.y<=alpha)?"sig":"not";
+				})
+				.attr("fill",function(d){
+					return (d.y<=alpha)?"#5cb85c":"#000";
+				})
+				.attr("width", xScale.bandwidth())
+				.attr("height", 1);
+			graph.append("rect")
+				.attr("class", "alpha")
+				.attr("y", yScale(alpha))
+				.attr("x", 0)
+				.attr("width", w)
+				.attr("stroke", "#EF476F")
+				.attr("fill" ,"#EF476F")
+				.attr("height", 2);
+		},2)
+		
+		var percents = range(data[0].length).map(i=>d3.sum(data, function(d){
+			return (d[i]<=alpha)?1:0;
+		})/data.length);
+		setTimeout(transition_percents(time_ran), 1000);
+		function transition_percents(t){return function(){
+			if ((get_active_section()==percent_selective_over_time)&&(t==time_ran)){
+				console.log("about to draw axis, yScale(1e-20)", yScale==logScale);
+				yScale = yLinearScale;
+				yScale.domain([0,1]);
+				yAxis = d3.axisLeft(yScale);
+				yAxis.tickFormat(d=>d*100+"%");
+				graph.select('.y')
+					.transition()
+					.duration(1000)
+					.call(yAxis)
+					.selection()
+					.select(".label")
+					.text("Percent of Neurons that Are Selective");
+				
+				graph.select("rect.alpha").transition().attr("y", yScale(alpha)).duration(1000);
+				graph.selectAll("rect.not").transition().attr("opacity",1e-6).duration(1000)
+					.on("end", function(){this.remove()});
+
+				var line = d3.line()
+					.x((d,i) =>xScale(i))
+					.y((d)=> yScale(d))
+					.curve(d3.curveCardinal),
+					r = 4;
+
+				graph.selectAll("rect.sig")
+					.transition()
+					.attr("height",r*2)
+					.attr("width", r*2)
+					.attr("rx", 45)
+					.attr("ry", 45)
+					.attr("x", d=>xScale(d.x)-r)
+					.attr("y",d=> yScale(percents[d.x])-r)
+					.duration(1000)
+					.on("end", function(d,j){
+						if (j==0){
+							graph.append("path")
+							.datum(percents)
+							.attr("stroke-width", 3)
+							.attr("stroke", "#5cb85c")
+							.attr("fill", "none")
+							.attr("d", line);	
+						}		
+					})
+			}
+		}}
+	}});
 }
 function decoding_shoutout(){
 	return;
