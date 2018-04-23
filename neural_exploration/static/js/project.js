@@ -343,6 +343,7 @@ function brain_pulse (){
 }
 
 function zoom_to_neuron(){
+	var pct_increase = 2000;
 	remove_all();
 	svg.select("image#neur-image")
 		.attr("x", w/2)
@@ -350,17 +351,19 @@ function zoom_to_neuron(){
 		.attr("width", 0)
 		.attr("height", 0)
 	svg.select("#brain")
-	.attr("x", 0)
+	.transition()
+	.duration(0)
+	.attr("x",0)
 	.attr("y",0)
 	.attr("height",'90%')
 	.attr("width",'90%')
 	.transition()
 	.ease(d3.easeExpIn)
 	.duration(1000)
-	.attr("x", -7*w)
-	.attr("y",-6*h)
-	.attr("width", "1200%")
-	.attr("height", "1200%")
+	.attr("x", -pct_increase/200*w)
+	.attr("y",-pct_increase/200*h)
+	.attr("width", pct_increase+"%")
+	.attr("height", pct_increase+"%")
 	.on("end", function(){
 		d3.select(this)
 		.attr("x", 0)
@@ -1820,8 +1823,6 @@ function time_bin_zoom_to_histogram(){
 
 		t_20_color_data=flatten(d3ify_avg_color_data(t_20_color_data).map(e=>e[0]));
 		var t_20_color_data_original=JSON.parse(JSON.stringify(t_20_color_data)).map(function(d){d.i=time_bin_index; return d});
-		console.log("full_domain",full_domain)
-		console.log("norm_color_data",norm_color_data)
 
 
 		draw_stimuli("all");
@@ -1836,7 +1837,7 @@ function time_bin_zoom_to_histogram(){
 		graph.selectAll("rect.ci_slice").data(moving_ci_data).enter().append("rect").attr("class","ci_slice")
 			.attr("x", d=>xScale(d.x)-1).attr("y",d=>yScale(d.y)).attr("height",d=>yScale(yScale.domain()[1]-d.height)).attr("width", xScale.bandwidth()+2)
 			.attr("opacity", 1e-6).attr("fill", d=>d.c);
-		console.log("moving_ci_data",moving_ci_data);
+
 		draw_confidence_intervals(a_cis).attr("class", "full");
 		setTimeout( function(){
 			draw_average_firing_rate(a_norm_color_data, data_length,2, 1)
@@ -1930,7 +1931,6 @@ function time_bin_zoom_to_histogram(){
 					(norm_color_data);
 				[color_bin_list, max_num, color_map_to_zero] = get_bin_list_max_num_color_map_to_zero(bins);
 				[starting_x_vals, ending_x_vals] = get_starting_ending_values(max_num, x_between_offset, x_front_offset);
-				console.log("t_20_color_data_original",t_20_color_data_original);
 			}
 		}};
 
@@ -2391,7 +2391,6 @@ function percent_selective_over_time(){
 		setTimeout(transition_percents(time_ran), 1000);
 		function transition_percents(t){return function(){
 			if ((get_active_section()==percent_selective_over_time)&&(t==time_ran)){
-				console.log("about to draw axis, yScale(1e-20)", yScale==logScale);
 				yScale = yLinearScale;
 				yScale.domain([0,1]);
 				yAxis = d3.axisLeft(yScale);
@@ -2438,9 +2437,27 @@ function percent_selective_over_time(){
 	}});
 }
 function decoding_shoutout(){
+	remove_all();
+	svg.selectAll("text").remove();
 	return;
 }
 function conclusion(){
+	remove_all();
+	time = 4000;
+	text_data = [
+	{text:'000100011000',startx: w-(w/3), duration: time/3*(2/3)},
+	{text:'111000110101',startx: 0, duration: time*(2/3)},
+	{text:'010000000001',startx: w/2, duration: time/2*(2/3)},
+	{text:'101001000011',startx: w, duration: 0}
+	];
+	svg.select("#brain")
+	.transition()
+	.duration(0)
+	.attr("x", 0)
+	.attr("y",0)
+	.attr("height",'90%')
+	.attr("width",'90%');
+	scroll_text(text_data, time);
 	return;
 }
 
