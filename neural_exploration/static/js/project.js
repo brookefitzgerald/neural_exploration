@@ -10,11 +10,29 @@ w = pixw.slice(0,pixw["length"]-2)*1-margin.left-margin.right,
 pixh = svg.style('height'),
 h = pixh.slice(0,pixh["length"]-2)*1-margin.top-margin.bottom;
 
+
+// setup x 
+var linearScale = d3.scaleLinear().range([0, w]),
+xScale = linearScale,
+bandScale = d3.scaleBand().range([0, w]),
+xAxis = d3.axisBottom(xScale);
+
+// setup y
+var logScale = d3.scaleLog().base([10]).range([h,0]),
+yLinearScale = d3.scaleLinear().range([h, 0]), // value -> display
+yScale = yLinearScale,
+yAxis = d3.axisLeft(yScale);
+
 window.onresize = function(){
 	pixw = svg.style('width');
 	w = pixw.slice(0,pixw["length"]-2)*1-margin.left-margin.right;
 	pixh = svg.style('height');
 	h = pixh.slice(0,pixh["length"]-2)*1-margin.top-margin.bottom;
+	linearScale.range([0,w]);
+	bandScale.range([0, w]);
+	logScale.range([h,0]);
+	yLinearScale.range([h, 0]);
+	restart_active_animation();
 };
 
 function round(number, precision=0) {
@@ -37,17 +55,6 @@ var graph = svg.append("g").attr("transform", "translate(" + margin.left + "," +
 var x_domain = {full: ()=>[0,1000], bin_150_50: ()=>range(18),bin_100_30: ()=>range(31), bin_50_15: range(64)};
 var y_domain = {full: ()=>[0,1], bin_150_50: ()=>[0,1],bin_100_30: ()=>[0,1], bin_50_15: ()=>[0,1]};
 
-// setup x 
-var linearScale = d3.scaleLinear().range([0, w]),
-xScale = linearScale,
-bandScale = d3.scaleBand().range([0, w]),
-xAxis = d3.axisBottom(xScale);
-
-// setup y
-var logScale = d3.scaleLog().base([10]).range([h,0]),
-yLinearScale = d3.scaleLinear().range([h, 0]), // value -> display
-yScale = yLinearScale,
-yAxis = d3.axisLeft(yScale);
 
 // variables for color
 var label_to_color_map = {guitar: "#8dd3c7", hand:"#ffe95c", flower: "#bebada", face: "#fb8072", couch:"#80b1d3", car: "#fdb462", kiwi: "#b3de69"},
@@ -59,7 +66,7 @@ ind_to_label_map = ["guitar", "hand", "flower", "face", "couch", "car", "kiwi"];
 
 // variables for data access
 var neuron_a_number= (host=="localhost:8000")? 99: 76,
-neuron_b_number=(host=="localhost:8000")? 16: 87,
+neuron_b_number=(host=="localhost:8000")? 110: 24,
 neuron_display_number = (host=="localhost:8000")? 99: 76,
 stimuli_display_number = 0,
 prop_index = 9,
@@ -335,6 +342,8 @@ function brain_pulse (){
 	.attr("width",'90%');
 	scroll_text(text_data, time);
 	svg.select("image#neur-image")
+	.transition()
+	.duration(0)
 	.attr("x", w/2)
 	.attr("y",h/2)
 	.attr("width", 0)
@@ -346,6 +355,8 @@ function zoom_to_neuron(){
 	var pct_increase = 2000;
 	remove_all();
 	svg.select("image#neur-image")
+		.transition()
+		.duration(0)
 		.attr("x", w/2)
 		.attr("y",h/2)
 		.attr("width", 0)
@@ -366,6 +377,8 @@ function zoom_to_neuron(){
 	.attr("height", pct_increase+"%")
 	.on("end", function(){
 		d3.select(this)
+		.transition()
+		.duration(0)
 		.attr("x", 0)
 		.attr("y",0)
 		.attr("width", 0)
@@ -383,61 +396,48 @@ function zoom_to_neuron(){
 }
 
 function neuron_spike(){
-	var points = [
-		[480, 200],
-		[580, 400],
-		[680, 100],
-		[780, 300],
-		[180, 300],
-		[280, 100],
-		[380, 400]
-	];
 	remove_data();
-	/*
-	var path = svg.append("path")
-		.data([points])
-		.attr("d", d3.line()
-			.x(function(d) { return x; })
-			.y(function(d) { return y; })
-			.curve(d3.curveCardinal()));
-
-	svg.append("path")
-		.attr("d", line)
-		.call(transition);
-
-	function transition(path) {
-		path.transition()
-				.duration(7500)
-				.attrTween("stroke-dasharray", tweenDash)
-				.each("end", function() { d3.select(this).call(transition); });
-	}
-
-	function tweenDash() {
-		var l = this.getTotalLength(),
-				i = d3.interpolateString("0," + l, l + "," + l);
-		return function(t) { return i(t); };
-	}
-	}*/
 	svg.select("image#neur-image")
+		.transition()
+		.duration(0)
 		.attr("x", 0)
 		.attr("y",0)
 		.attr("width", "90%")
-		.attr("height", "90%")
+		.attr("height", "90%");
+	graph.selectAll("text")
+		.data([{t: "Axon", x: "30%",y: "70%"},
+			{t: "Cell Body", x: "30%",y: "29%"},
+			{t: "Dendrites", x: "5.5%",y:"5%"}])
+		.enter()
+		.append("text")
+		.attr("x",d=>d.x)
+		.attr("y",d=>d.y)
+		.text(d=>d.t)
+		.attr("text-anchor", "middle")
+		.attr("font_size", 20)
+		.attr("opacity", 1e-6)
 		.transition()
-		.duration(100)
-		.attr("transform", "rotate(3 "+w/2+" "+h/2+")")
+		.duration(1000)
+		.attr("opacity",1);
+	graph.selectAll("line")
+		.data([
+			{x1: "30%", y1:"67%", x2: "30%", y2: "50%"},
+			{x1: "30%", y1:"29%", x2: "12%", y2: "45%"},
+			{x1: "5.5%", y1:"5%", x2: "14%", y2: "24%"},
+			{x1: "5.5%", y1:"5%", x2: "0%", y2: "22%"}])
+		.enter()
+		.append("line")
+		.attr("y1",d=>d.y1)
+		.attr("x1",d=>d.x1)
+		.attr("y2",d=>d.y1)
+		.attr("x2",d=>d.x1)
+		.attr("stroke","#595959")
+		.attr("stroke-width", 2)
 		.transition()
-		.duration(100)
-		.attr("transform", "rotate(-6 "+w/2+" "+h/2+")")
-		.transition()
-		.duration(100)
-		.attr("transform", "rotate(6 "+w/2+" "+h/2+")")
-		.transition()
-		.duration(100)
-		.attr("transform", "rotate(-6 "+w/2+" "+h/2+")")
-		.transition()
-		.duration(100)
-		.attr("transform", "rotate(3 "+w/2+" "+h/2+")");
+		.delay(1000)
+		.duration(2000)
+		.attr("y2",d=>d.y2)
+		.attr("x2",d=>d.x2);
 	return;
 }
 
@@ -472,6 +472,7 @@ function remove_images(){
 
 
 function remove_all(){
+	svg.selectAll("text.code").remove();
 	remove_images();
 	remove_data();
 	remove_slider();
@@ -614,23 +615,21 @@ function remove_stimuli_and_index_change_buttons(){
 }
 
 
-function draw_x_axis(x_label, type, bin_extents=null){
+function draw_x_axis(x_label, type=null, bin_extents=null){
 	xAxis = d3.axisBottom(xScale);
 	// x-axis
+	var transform = "translate(0,0)",
+		y_displacement = 30;
 	if (type=="bins"){
 		xAxis.tickFormat(n=>(bin_extents[n][0]-500)+"-"+(bin_extents[n][1]-500));
 		var transform = "translate(-"+(xScale.bandwidth()+5)+",15) rotate(-45)",
 		y_displacement = 50;
 	} else if (type=="full"){
 		xAxis.tickFormat(n=>(n-500));
-		var transform = "translate(0,0)",
-		y_displacement = 30;
 	} else if (type=="hist"){
 		let front_x_displacement = xScale.invert(w/31);
 		xAxis.tickFormat(n=>round(n-front_x_displacement))
 			.tickValues(range(xScale.domain()[1]-front_x_displacement+10, 10).map(n=>n+front_x_displacement));
-		var transform = "translate(0,0)",
-			y_displacement = 30;
 	}
 
 	if (graph.selectAll("g.x").nodes().length==0){
@@ -652,6 +651,7 @@ function draw_x_axis(x_label, type, bin_extents=null){
 	.attr("transform", "translate(0,0)")
 	.text(x_label)
 	.attr("font-size", 14);
+	return(graph.select('g.x'));
 }
 
 function transition_x_axis(x_label, type, bin_extents=null, delay=0, duration=0) {
@@ -714,6 +714,7 @@ function draw_y_axis(y_label="Average Firing Rate (mHz)", type="continuous", for
 	.attr("class", "y label")
 	.text(y_label)
 	.attr("font-size", 14);
+	return graph.select("g.y");
 }
 
 function transition_y_axis(y_label="Average Firing Rate (mHz)", type="continuous", delay=0, duration=1000, format_func = null) {
@@ -737,7 +738,7 @@ function transition_y_axis(y_label="Average Firing Rate (mHz)", type="continuous
 	.attr("font-size", 14);
 }
 
-function draw_spikes(){
+function draw_spikes(opacity=1){
 	xScale = linearScale;
 	xScale.domain(x_domain.full());
 	yScale.domain(y_domain.full()); 
@@ -746,6 +747,7 @@ function draw_spikes(){
 	if ((current_section==bin_average)||(current_section==show_stimuli)||(current_section==single_neuron_spike_train)){
 		graph.append("g")
 		.attr("class", "data")
+		.attr("opacity",opacity)
 		.selectAll("rect")
 		.data(data.data[stimuli_display_number])
 		.enter()
@@ -759,17 +761,22 @@ function draw_spikes(){
 		.attr("ry", 1/2);
 	}});
 }
-function single_neuron_spike_train(){
+function single_neuron_spike_train(transition=true){
 	// draws a single neuron spike train with axes
 	remove_all();
 	svg.select("#brain").transition().duration(0).attr("height",0);
 	svg.select("image#neur-image")
 		.attr("width", 0)
 		.attr("height", 0);
-	draw_spikes();
-	draw_x_axis("Time before/after stimulus is shown (ms)", "full");
-	draw_y_axis("Spike detected", "boolean");
-
+	var opacity = (transition)?1e-6:1;
+	initial_data.then(function(data){
+		draw_spikes(opacity);
+		setTimeout(function(){
+			draw_x_axis("Time before/after stimulus is shown (ms)", "full").attr("opacity", opacity);
+			draw_y_axis("Spike detected", "boolean").attr("opacity", opacity);
+			if (transition){graph.selectAll("*").transition().duration(2000).attr("opacity",1);}
+		});
+	})
 	return;
 }
 function zoom_to_inferior_temporal_cortex(){
@@ -777,7 +784,7 @@ function zoom_to_inferior_temporal_cortex(){
 	return;
 }
 function show_stimuli(){
-	single_neuron_spike_train();
+	single_neuron_spike_train(false);
 	draw_stimuli_and_index_change_buttons();
 	
 	return;
@@ -1164,7 +1171,8 @@ function draw_slider(label_text = "Percent of data used", values = range(10).map
 }
 
 function remove_slider(){
-	$(".slider_svg").remove();
+	d3.select(".slider_svg").remove();
+	d3.select("#btn-text").text("");
 }
 
 function confidence_intervals(){
@@ -1768,7 +1776,6 @@ function transition_multi_hist_axis(starts, ends, front_x_displacement = null, d
 	}
 	graph.select("g.stimuli_labels").selectAll("text").data(text_data).enter().append("text")
 	.attr("x",d=>d.x).attr("y",h+30).attr("text-anchor","middle").text(d=>d.t).attr("font-size",12);
-
 	graph.select('.x')
 		.transition()
 		.duration(duration)
@@ -2190,7 +2197,7 @@ function p_value_appear_time_bin(){
 
 		draw_full_stimuli_histogram(p_value_appear_time_bin);
 
-		setTimeout(transition_to_p_value(time_ran), 1000);
+		setTimeout(transition_to_p_value(time_ran), 1500);
 		function transition_to_p_value(time){return function(){
 			if ((get_active_section()==p_value_appear_time_bin)&&(time==time_ran)){
 				xScale = bandScale;
@@ -2229,12 +2236,16 @@ function p_value_appear_time_bin(){
 				}
 
 		}}}
-		setTimeout(draw_p_value(time_ran), 3000);
+		setTimeout(draw_p_value(time_ran), 3500);
 		function draw_p_value(time){return function(){
 			if ((get_active_section()==p_value_appear_time_bin)&&(time==time_ran)){
 			
 			transition_y_axis("P-value of ANOVA", "continous", 0,1000,d=>format_power(d,true));
-			graph.selectAll("rect.pval").transition().duration(1000).attr("y", yScale(data[neuron_a_number][time_bin_index]));
+			graph.selectAll("rect.pval").transition().duration(1000).attr("y", yScale(data[neuron_a_number][time_bin_index]))
+			.on("end", function(){
+				draw_slider("Alpha Value", range(7).map(d=>Math.pow(10, -d)), function(x){return draw_anova(x,p_value_appear_time_bin)},
+				 d=>format_power(d,true));
+			});
 			graph.append("g").attr("class", "anova")
 				.selectAll("rect")
 				.data(first_data)
@@ -2248,7 +2259,7 @@ function p_value_appear_time_bin(){
 				.attr("width", function(d,i){
 					return (i==time_bin_index)? 0: xScale.bandwidth();
 				})
-				.attr("height", 1);
+				.attr("height", 1).attr("opacity", 1e-6).transition().duration(1000).attr("opacity", 1);
 			graph.append("rect")
 				.attr("class", "alpha")
 				.attr("y", yScale(alpha))
@@ -2256,9 +2267,8 @@ function p_value_appear_time_bin(){
 				.attr("width", w)
 				.attr("stroke", "#EF476F")
 				.attr("fill" ,"#EF476F")
-				.attr("height", 2);
-			draw_slider("Alpha Value", range(7).map(d=>Math.pow(10, -d)), function(x){return draw_anova(x,p_value_appear_time_bin)},
-			 d=>format_power(d,true));
+				.attr("height", 2).attr("opacity", 1e-6).transition().duration(1000).attr("opacity", 1);
+			
 		}}};
 
 
@@ -2437,8 +2447,17 @@ function percent_selective_over_time(){
 	}});
 }
 function decoding_shoutout(){
-	remove_all();
-	svg.selectAll("text").remove();
+	remove_slider();
+	/*
+	norm_full_data.then(function(data){
+	if (get_active_section()==decoding_shoutout){
+		yScale = d3.scaleBand().domain([h,0]).range(range(data.length));
+		xScale = d3.scaleBand().domain([h,0]).range(range(n_stimuli));
+		draw_y_axis("Neurons");
+		draw_x_axis("Stimuli");
+
+	}})
+	*/
 	return;
 }
 function conclusion(){

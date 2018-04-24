@@ -41,7 +41,7 @@
 
 				<p>Neuroscientists ask questions like this everyday, and then conduct experiments to figure out the answer.</p>
 
-				<p>This website will explore how brain activity generates neural data and how we use neural data to figure out how the brain works. </p>
+				<p>This website will explore some common ways that neural data is analyzed in order to figure out how the brain processes information. </p>
 
 				<p>Scroll to learn more.</p>
 			</div>
@@ -49,40 +49,40 @@
 				<!-- 1: zoom_to_neuron -->
 				<h1>What exactly is brain activity?</h1>
 
-				<p>Scientists know more about the brain works than ever before, but there are still many unanswered questions.</p>
+				<p>Scientists know more about how the brain works than ever before, but there are still many unanswered questions.</p>
 
 				<p>To answer these questions, neuroscientists measure brain activity.</p>
 
-				<p>The brain is made up of a large number of specialized cells called neurons. Typical neurons consist of a soma (or cell body), dendritic branches (or dendrite) that receives signal from other cells, and an axon that conducts signal away from the cell body to other neurons or to muscles.</p>
+				<p>The brain is made up of a large number of specialized cells called neurons. Typical neurons consist of a soma (or cell body), dendritic branches (or dendrites) that receives signal from other cells, and an axon that conducts signal away from the cell body to other neurons or to muscles.</p>
 			</div>
 			<div class='section'>
 				<!-- 2: neuron_spike-->
-				<p>When the sum of signals that reach the dendrite from other neurons and/or from elsewhere in the body is larger than some threshold, the dendrite "fires" - thus propagating the signal through the neuron’s long axon to reach other neurons.</p>
+				<p>When the sum of signals that reach the dendrite from other neurons is larger than some threshold, the neuron "fires" - thus propagating the signal through the neuron’s long axon to reach other neurons.</p>
 
-				<p>This propagation of signal is called an action potential, or spike, and is the basis of all neural communication. Dendrites were initially thought to only passively propagate information, but they’re now known to actively cause spikes themselves and can even back-propagate signal through the dendritic tree to reach neurons there.</p>
+				<p>This propagation of signal is called an action potential, or spike, and is the basis of all neural communication. A neuron can only fire a single action potential, never a half an action potential, so a spike train that measures when action potentials are fired is only ever 0 or 1. </p>
 			</div>
 			<div class='section'>
 				<!-- 3: single_neuron_spike_train -->
-				<p>Nonetheless, dendrites constantly receive new incoming signals, and therefore the action potentials that the dendrite fires create a pattern over time. </p>
-				<p>One way that neuroscientists measure brain activity is by implanting electrodes into the brain that record a large number of neurons and their firing rates over time. These spikes recorded over time is called a spike train and looks something like this:</p>
+				<p>Dendrites constantly receive new incoming signals, and therefore the action potentials that the neuron fires create a pattern over time. </p>
+				<p>One way that neuroscientists measure brain activity is by implanting electrodes into the brain that record spikes. This collection of action potentials recorded over time is called a spike train and looks something like this:</p>
 			</div>
 			<div class='section'>
 				<!-- 4: zoom_to_inferior_temporal_cortex -->
-				<h1>Our experiment</h1>
-				<p>Many neuroscience experiments try to figure out how the brain works by recording responses to different conditions. The experiment we'll be examining [collected by Ying Zhang in Bob Desimone’s lab in the McGovern Institute at MIT] recorded spikes from 132 neurons in the inferior temporal cortex (a brain region known to be important for visual processing) of a Macaque monkey.</p>
+				<h1>The experiment</h1>
+				<p>Many neuroscience experiments try to figure out how the brain works by recording responses to different conditions. The experiment we'll be examining [collected by Ying Zhang in Bob Desimone’s lab in the McGovern Institute at MIT] recorded spikes from 132 neurons in the inferior temporal cortex (a brain region known to be important for visual processing) of a Macaque monkey <a href="https://doi.org/10.1073/pnas.1100999108">[1]</a>.</p>
+
 			</div>
 			<div class='section'>
 				<!--5:show_stimuli -->
-				<p>The monkey was presented with one of seven different stimuli: pictures of a guitar, hand, flower, kiwi, couch, face, or car. Each neuron was recorded for 1000 ms, and the stimulus was shown 500 ms after the monkey fixated a spot at the center of a display. </p>
-
-				<p>A neuron can only fire a single action potential, never a half an action potential, so a spike train that measures when action potentials are fired is only ever 0 or 1. </p>
+				<p>On each trial, the monkey was presented with one of seven different stimuli: pictures of a guitar, hand, flower, kiwi, couch, face, or car. Each neuron was recorded for 1000 ms, and the stimulus was shown 500 ms after the monkey fixated a spot at the center of a display. </p>
+				<p>Each image was presented around 60 times while the neuron spikes were recorded. </p>
 			</div>
 			<div class='section'>
 				<!--6:bin_average -->
 				<h1>Averaging over time</h1>
 				<p>Now that we have this collection of zeros and ones, we can ask more interesting questions. Namely, what does seeing a kiwi look like in the brain? At what time can our brains tell that we’re looking at a hand? How can we be sure that these zeros and ones aren't just due to chance? </p>
 
-				<p>To present this data a different way, we can look at the average firing rate over an interval of time.</p>
+				<p>To present this data a different way, we can look at the average firing rate over an interval of time within each trial.</p>
 			</div>
 			<div class='section'>
 				<!--7:question -->
@@ -94,13 +94,13 @@
 				<!--8:trial_average -->
 				<h1>Averaging over trials</h1>
 				<p>The first thing we want to do is look at multiple trials.</p>
-				<p>The spike train from one neuron can fire very differently from run to run, even when both recordings come from the same stimulus. It's therefore important to look at many recordings from the same neuron to make sure you aren't confusing random effects for experimental results. </p>
+				<p>The spike train from one neuron can fire very differently from trial to trial, even when both recordings come from the same stimulus. It's therefore important to look at many recordings from the same neuron to make sure you aren't confusing random activity for activity driven by the stimuli. </p>
 			</div>
 			<div class='section'>
 				<!-- 9: confidence intervals -->
 				<h1>Accounting for variability</h1>
-				<p>The bars that you see are called 95% confidence intervals, and they are an indicator of how variable each neuron's average response is. More technically, in future experiments the true average firing rate of the neuron will be in between the bars 95% of the time. When the bars are larger for a stimulus, this generally means that the neuron's response to that stimulus is quite variable. </p>
-				<p>We can investigate this further by removing some of the data to see how the mean and confidence intervals change. 2. For more information about confidence intervals, see [website].</p>
+				<p>If we had data from an infinite number of trials, we would be able to calculate the <i>true</i> average firing rate for each neuron and stimulus perfectly. However, because we only have data from around 60 trials for each stimulus, our estimate of the true average firing rate is most likely slightly off. The colored bands that you see are called 95% confidence intervals, and they are created such that the true average firing rate will be contained in the band 95% of the time.</p>
+				<p>If we have less data, then our confidence intervals have to be larger to capture the <i>true</i> average firing rate 95% of the time. Below you can move the slider to see the mean and confidence intervals change when you use less data. For more information about confidence intervals, see <a href="https://www.mathsisfun.com/data/confidence-interval.html">[2]</a>.</p>
 			</div>
 			<div class='section'>
 				<!-- 10: neuron_average -->
@@ -111,25 +111,23 @@
 				<!-- 11: neuron_magnitude_comparison -->
 				<h1>Comparing neurons</h1>
 				<p>Every neuron responds to stimuli differently. Some neurons naturally fire very often and have a high average firing rate, like neuron A, but other neurons naturally have a much lower average firing rate, like neuron B.  </p>
+				<p>Therefore, to compare these neuron firing rates more effectively, we put them on the same scale - a process called normalization.</p>
 			</div>
 			<div class='section'>
 				<!-- 12: neuron_normalization -->
-				<p>Therefore, to compare these neuron firing rates more effectively, we put them on the same scale, a process called normalization.</p>
-				<p> To do this, for each neuron we subtract its averaging firing rates by its mean and divide by its standard deviation. Now instead of plotting average firing rate over time, we plot the deviations away from the average firing rate over time.
-				</p>
+				<p> To do this, we calculate the mean and standard deviation of all time bins and trials for each neuron. We then normalize the neuron's activity by subtracting this mean and dividing by this standard deviation. Now instead of plotting average firing rate over time, we plot the deviations away from the average firing rate over time. </p>
 			</div>
 
 			<div class='section'>
 				<!-- 13: neuron_information_comparison -->
 				<h1>Aggregating across neurons</h1>
-				<p>Before when we combined information from multiple trials, we averaged them together. However, averaging them can lose information the data contains about which stimuli the monkey is looking at. </p>
-				<p>For example, neuron A spikes only a few times when the [kiwi] stimulus appears, but neuron B spikes consistently after every stimulus appears. </p>
-				<p>This means that for figuring out when the monkey is looking at a [kiwi], neuron A is much more informative.</p>
+				<p>Before when we combined information from multiple trials, we only averaged together the trials when the same stimulus was shown. This allowed us to be able to tell whether or not a neuron responds differently to different stimuli. Similarly, averaging together all neurons would make it difficult for us to tell if the neurons respond differently to different stimuli. </p>
+				
 			</div>
 			<div class='section'>
 				<!-- 14: neuron_average -->
-				<p>However, if we average the two neurons, then we lose the information that neuron A had!
-				</p>
+				<p>For example, neuron A spikes a lot after the guitar and flower stimuli appear, while neuron B spikes more for the couch stimulus but overall less frequently after every stimulus appears. </p>
+				<p>However, if we average the two neurons, then we can no longer distinguish the couch, guitar, or flower stimuli as easily!</p>
 			</div>
 			<div class='section'>
 				<!-- 15: compared_neuron_separation -->
@@ -139,34 +137,34 @@
 				<!-- 16: time_bin_zoom_to_histogram -->
 				<p>Since we can’t as easily figure out if our experimental condition had an effect from averaging our entire neuron population, we need another technique.</p>
 				<p>As we saw before, the same neuron can respond very differently to multiple exposures to the same stimulus.</p>
-				<p>Thus we will use a statistical method that compares the distribution of average firing rates for each neuron and for every stimulus.</p>
+				<p>Thus we will use a statistical method that compares the distribution of average firing rates for each neuron and across every stimulus.</p>
 			</div>
 			<div class='section'>
 				<!-- 17: stimuli_histogram_reveal -->
-				<p>We can then run an ANalysis Of VAriance or ANOVA, a procedure that helps us figure out if the difference in the firing rates between stimuli can be explained statistically by the different stimuli.  </p>
-				<p>More technically, ANOVA computes a statistic that gives us a measure of the likelihood that the differences in mean firing rates between stimuli is actually due to the different stimuli instead of just overall random chance.</p>
+				<p>We can then run an ANalysis Of VAriance (ANOVA), a procedure that helps us figure out if the neurons actually respond differently to different stimuli or whether the recorded responses are random fluctuations.</p>
+				<p>More technically, ANOVA computes a statistic that gives us a measure of the likelihood that splitting the trials randomly could explain more of the variation in all of the trials than splitting them by stimuli.</p>
 			</div>
 			<div class='section'>
 				<!-- 18: p_value_appear_time_bin -->
-				<p>For each time bin and neuron, we run an ANOVA and get a p-value describing the likelihood that the differences in average firing rate between stimuli is solely due to chance. </p>
+				<p>We run a separate ANOVA for each time bin and neuron, and get a p-value that gives us the probability of calculating a statistic more extreme than the one observed if the mean firing rate responses were in fact the same for each stimulus. </p>
+				<p>In this analysis, we’re going to set a threshold (called an alpha-level) where we call a neuron "selective" if it has a p-value less than that alpha-level.</p>
 			</div>
 			<div class='section'>
 				<!-- 19: percent_selective_over_time-->
-				<p>A very small p-value indicates that the different stimuli made a significant difference in the mean firing rates!</p>
-				<p>In this analysis, we’re looking for results that have a p-value of 0.01 or less, so we expect that before the stimulus was shown there is a 1% chance that the ANOVA would produce a positive result by chance.</p>
-				<p>Therefore, selectivity above the 1% mark tells us that our experimental condition produced different results in the brain. 
-				</p>
+				<p>A very small p-value indicates that the neuron responded differently to different stimuli.</p>
+				<p> We expect that before the stimulus was shown there is a fraction of neurons equal to the alpha-level that would be called selective by chance.</p>
+				<p>If the fraction of selective neurons is much higher than the alpha-level after the stimulus was shown, that means that the stimuli statistically produced distinctly different neural responses in our experiment. </p>
 			</div>
 			<div class='section'>
 				<!-- 20: decoding_shoutout -->
-				<p>ANOVA is an analysis technique that only looks at the variance of individual neurons, and while this website doesn’t cover them there are approaches such as neural population decoding that can integrate information about stimuli from an arbitrary number of neurons. </p>
+				<p>In our ANOVA analysis, we analysed whether the population of neurons was selective by running an ANOVA analysis separately on each neuron. Other approaches, such as neural population decoding, apply a multivariate analysis to look at the population as a whole rather than analyzing each neuron separately <a href="http://www.readout.info/">[3]</a>.</p>
 			</div>
 			<div class='section' id='conclusion'>
 				<!--21: conclusion-->
 				<h1>In conclusion</h1>
-				<p>Neuroscience is complicated, and nobody has all of the answers about how the brain works. </p>
+				<p>The brain is complicated, and neuroscientists are still trying to answer basic questions about how the brain works. </p>
 				<p> However, the data analysis techniques explored here can help us understand how long it takes information to propagate throughout the brain, how neurons respond more to certain stimuli than others, and about the proportion of neurons that statistically respond to the experimental conditions.</p>
-				<p> The more data we get and the more we think about information and signal and chance and what that means for our experiment the more we’ll understand.</p> 
+				<p> As we continue to collect more data and build better data analysis methods, the more we will improve our understanding of how the brain produces complex behavior.</p> 
 			</div>
 		</div>
 	</div>
