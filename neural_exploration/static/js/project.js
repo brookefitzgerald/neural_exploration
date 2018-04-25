@@ -473,6 +473,7 @@ function remove_images(){
 
 function remove_all(){
 	svg.selectAll("text.code").remove();
+	label_graph("", 18);
 	remove_images();
 	remove_data();
 	remove_slider();
@@ -786,6 +787,9 @@ function zoom_to_inferior_temporal_cortex(){
 function show_stimuli(){
 	single_neuron_spike_train(false);
 	draw_stimuli_and_index_change_buttons();
+	initial_data.then(function(){
+		label_graph("Trial "+(stimuli_display_number+1)+"/"+n_trials, 18);
+	})
 	
 	return;
 }
@@ -878,6 +882,7 @@ function bin_average (){
 		[data, color_data,average_color_data, ci_data] = data_full;
 		let max_height=yScale(y_domain[bin]()[1]),
 		spike_nodes = graph.selectAll(".data").selectAll(function() {return this.childNodes;}).nodes();
+		initial_data.then(function(){label_graph("Trial "+(stimuli_display_number+1)+"/"+n_trials, 18);});
 		graph.append("g")
 		.attr("class", "bins")
 		.selectAll("rect")
@@ -894,8 +899,11 @@ function bin_average (){
 		.attr("fill","none")
 		.transition()
 		.attr("stroke-opacity",1.0)
-		.delay((d,i)=>((i==0) ? 500 : 2000))
+		.delay((d,i)=>((i==0) ? 3500 : 5000))
 		.duration(1000)
+		.on("start", function(d,i){
+			if(i==0)label_graph("Create Bin Intervals", 18);
+		})
 		.on("end", function(d,i){
 			//If the last averaging bin has appeared
 			if ((i==(data[bin+"_extents"].length-1))&& (get_active_section()==bin_average)){
@@ -906,7 +914,9 @@ function bin_average (){
 					graph.selectAll("g.bins")
 					.selectAll("rect")
 					.data(data[bin][stimuli_display_number].map(function(d,j){return {d:d,i:j, c: "#000000"}})))
+				.duration(1000)
 				.on("start", function(d,j){
+					label_graph("Average Number of Spikes in Interval", 18);
 					spike_nodes.slice(j,j*bin_width).map(node=>node.remove());
 					if (j==(x_domain[bin]().length-1)){
 						transition_y_axis();
@@ -923,6 +933,8 @@ function bin_average (){
 						})
 						.then(()=>yScale.domain(y_domain[bin]()))
 						.then(function(){
+							setTimeout(function(){label_graph("Rescale Average Firing Rate", 18)}, 500);
+							setTimeout(function(){label_graph("", 18)}, 2000);
 							transition_average_firing_rate(color_data[stimuli_display_number], data_length).delay(500);
 							transition_y_axis("Average Firing Rate (mHz)", "continuous", 500);
 						});
@@ -1026,6 +1038,7 @@ function trial_average(){
 	single_neuron_color_data.then(function(data_full){
 	if (get_active_section()==trial_average){
 		draw_stimuli("all");
+
 		xScale = bandScale;
 		xScale.domain(x_domain[bin]());	
 		[data, color_data, average_color_data_list, ci_data] = data_full;
@@ -1047,21 +1060,22 @@ function trial_average(){
 				transition_average_firing_rate(original_data, data_length, selection, line_width=1).delay(1000);
 		}}}
 
-		setTimeout(scale_to_full(time_ran), 500);
+		setTimeout(scale_to_full(time_ran), 3500);
 		function scale_to_full(t){return function(){
 			if ((get_active_section()==trial_average)&&(t==time_ran)){
 				yScale.domain(y_domain[bin+"_full"]);
 		}}}
-		setTimeout(transition_to_full(time_ran), 505);
+		setTimeout(transition_to_full(time_ran), 3505);
 		function transition_to_full(t){return function(){
 			if ((get_active_section()==trial_average)&&(t==time_ran)){
 
 				transition_y_axis("Average Firing Rate (mHz)", "continuous", delay=250);
 				transition_average_firing_rate(original_data, data_length, selection, line_width=1).delay(250);
 		}}}
-		setTimeout(draw_random_samples(time_ran), 1510);
+		setTimeout(draw_random_samples(time_ran), 4510);
 		function draw_random_samples(time){return function(){
 			if ((get_active_section()==trial_average)&&(time==time_ran)){
+				label_graph("Look at Many Trials", 18);
 				var data_indices = getRandomSubarray(range(420), n_repeats), sampled_data=original_data;
 				var t = d3.interval(function(elapsed) {
 					if ((elapsed >delay) && (get_active_section()==trial_average)){
@@ -1074,7 +1088,7 @@ function trial_average(){
 				}, interval);
 		}}}
 
-		setTimeout(make_cis(time_ran), 1560+interval*n_repeats+delay);
+		setTimeout(make_cis(time_ran), 4560+interval*n_repeats+delay);
 		function make_cis(t){return function(){
 			if ((get_active_section()==trial_average)&&(t==time_ran)){
 				graph.select("g.bins").attr("class", "remove");
@@ -1086,22 +1100,24 @@ function trial_average(){
 					.attr("opacity",0.25);
 				}, 1);
 		}}}
-		setTimeout(draw_averages(time_ran), 1565+interval*n_repeats+delay);
+		setTimeout(draw_averages(time_ran), 4565+interval*n_repeats+delay);
 		function draw_averages(t){return function(){
 			if ((get_active_section()==trial_average)&&(t==time_ran)){
+				label_graph("Average Trials With Same Stimuli", 18);
+
 				draw_average_firing_rate(average_color_data, data_length,2,1e-6)
 				.transition()
 				.duration(1000)
 				.attr("opacity",1.0);
 				d3.select("g.remove").transition().delay(2000).duration(1000).attr("opacity", 1e-6).remove();
 		}}}
-		setTimeout(rescale_domain(time_ran), 1810+interval*n_repeats+delay);
+		setTimeout(rescale_domain(time_ran), 4810+interval*n_repeats+delay);
 		function rescale_domain(t){return function(){
 			if ((get_active_section()==trial_average)&&(t==time_ran)){
 				yScale.domain([0,d3.max(flatten(flatten(ci_data)))]);
 		}}}
 
-		setTimeout(transition_averages(time_ran), 2570+interval*n_repeats+delay);
+		setTimeout(transition_averages(time_ran), 5570+interval*n_repeats+delay);
 		function transition_averages(t){return function(){
 			if ((get_active_section()==trial_average)&&(t==time_ran)){
 				transition_confidence_intervals();
@@ -1208,6 +1224,7 @@ function neuron_flip_through(){
 	draw_stimuli_and_index_change_buttons("all", "neuron");
 
 	full_data.then(function(data){
+		label_graph("Neuron "+(neuron_display_number+1)+"/"+n_neurons, 18);
 		[average_color_data, confidence_intervals] = data[neuron_display_number];
 		yScale.domain([0,d3.max(flatten(flatten(confidence_intervals)))]);
 		xScale = bandScale;
@@ -1364,6 +1381,7 @@ function normalize_single_neuron(t, name,d3_data, sub_mean_avg, sub_mean_cis, no
 	setTimeout(mean_appear(time_ran));
 	function mean_appear(t) {return function() {
 		if ((t==time_ran) && (get_active_section()==neuron_normalization)){
+			label_graph("Subtract "+name+"'s Mean",18);
 			draw_mean(name, [d3_data[name_map[name]]])
 				.attr("opacity",1e-6)
 				.transition()
@@ -1392,6 +1410,7 @@ function normalize_single_neuron(t, name,d3_data, sub_mean_avg, sub_mean_cis, no
 	setTimeout(sd_appear(time_ran),3000)
 	function sd_appear(t) {return function() {
 		if ((t==time_ran) && (get_active_section()==neuron_normalization)){
+			label_graph("Divide by "+name+"'s Standard Deviation",18);
 			draw_sd(name, [{m:0, sd:d3_data[name_map[name]].sd}])
 			.attr("opacity",1e-6)
 			.transition()
@@ -1425,6 +1444,8 @@ function normalize_single_neuron(t, name,d3_data, sub_mean_avg, sub_mean_cis, no
 			graph.select("g.mean").selectAll("rect."+name).transition().duration(1000).attr("opacity",1e-6).on("end",function(){
 				graph.select("g.mean").selectAll("rect."+name).remove();
 			});
+			label_graph("",18);
+
 	}};}
 }
 
@@ -1618,7 +1639,6 @@ function neuron_average(){
 		setTimeout( function(){
 			draw_average_firing_rate(b_norm_color_data, data_length,2, 1);
 			graph.selectAll("g.bins").attr("class", "b-bins");
-			graph.append("g").attr("class", "bins");
 			label_g = graph.append("g").attr("class", "label");
 			draw_label_with_bounding_box("B", text_size, data_length-1, 0, label_g);
 		});
@@ -1628,18 +1648,18 @@ function neuron_average(){
 				yScale.domain(domain);
 				setTimeout(function(){
 					draw_confidence_intervals(a_cis, 1e-6);
-					transition_average_firing_rate(null,null, graph.select("g.b-bins").selectAll("rect"),2,1).duration(1000);
-					transition_confidence_intervals(graph.selectAll("polygon.b-ci")).duration(1000);
-					transition_labels_with_bounding_box([{x: data_length-1, y: 0}], 1000);
-					transition_y_axis("Standard Deviations Away From Mean Firing Rate");
-					draw_average_firing_rate(a_norm_color_data, data_length,2, 1e-6);
-					draw_label_with_bounding_box("A", text_size,	data_length-1, 0, label_g).attr("opacity", 1e-6);
+					setTimeout(function(){
+						draw_average_firing_rate(a_norm_color_data, data_length,2, 1e-6);
+						var label_g_a = graph.append("g").attr("class", "a-label");
+						draw_label_with_bounding_box("A", text_size,	data_length-1, 0, label_g_a).attr("opacity", 1e-6);
+					},2);
 				});
 			}
 		}};
 		setTimeout(a_appear_b_dissappear(time_ran),3000);
 		function a_appear_b_dissappear(t){return function(){
 			if ((get_active_section()==neuron_average)&&(t==time_ran)){
+				transition_y_axis("Standard Deviations Away From Mean Firing Rate");
 				graph.selectAll("g.b-bins").selectAll("rect").transition().duration(1000).attr("opacity",1e-6);
 				graph.selectAll("polygon.b-ci").transition().duration(1000).attr("opacity",1e-6);
 				graph.selectAll(".B").transition().duration(1000).attr("opacity",1e-6);
@@ -1655,6 +1675,7 @@ function neuron_average(){
 				transition_average_firing_rate(average_color_data,null, graph.select("g.b-bins").selectAll("rect"),2,1).duration(1000);
 				graph.selectAll("polygon.b-ci").data(get_polygon_data(average_cis));
 				transition_confidence_intervals(graph.selectAll("polygon.b-ci"));
+				label_graph("Average Neuron A and B Together",18);
 				graph.selectAll(".Mean").transition().duration(1000).attr("opacity",1);
 				graph.selectAll(".B").transition().duration(1000).attr("opacity",1e-6);
 				graph.selectAll("g.bins").selectAll("rect").transition().duration(1000).attr("opacity",1e-6);
@@ -1697,9 +1718,10 @@ function compared_neuron_separation(){
 			draw_label_with_bounding_box("Mean", 28, data_length-7, 0, label_g, "Mean");
 			draw_label_with_bounding_box("A", text_size,	data_length-1, 0, label_g).attr("opacity", 1e-6)
 		});
-		setTimeout(mean_dissappear_a_appear(time_ran),2000);
+		setTimeout(mean_dissappear_a_appear(time_ran),3000);
 		function mean_dissappear_a_appear(t){return function(){
 			if ((get_active_section()==compared_neuron_separation)&&(t==time_ran)){
+				label_graph("Separate Neuron A and B",18);
 				graph.selectAll(".Mean").transition().duration(1000).attr("opacity",1e-6);
 				transition_average_firing_rate(a_norm_color_data,null, graph.select("g.bins").selectAll("rect"),2,1).duration(1000);
 				graph.selectAll("polygon").data(get_polygon_data(a_cis));
@@ -1847,19 +1869,18 @@ function time_bin_zoom_to_histogram(){
 
 		draw_confidence_intervals(a_cis).attr("class", "full");
 		setTimeout( function(){
-			draw_average_firing_rate(a_norm_color_data, data_length,2, 1)
+			draw_average_firing_rate(a_norm_color_data, data_length,2, 1);
 			graph.select("g.bins").attr("class", "full");
-			draw_average_firing_rate(t_20_color_data_original, data_length,2, 1)
+			draw_average_firing_rate(t_20_color_data_original, data_length,2, 1);
 			graph.select("g.bins").attr("class", "slice");
 			label_g = graph.append("g").attr("class", "label");
 			draw_label_with_bounding_box("A", text_size,	data_length-1, 0, label_g);
 		});
 		var expanded_ci_data;
 		
-		setTimeout(draw_box_around_time_bin(time_ran),1000);
+		setTimeout(draw_box_around_time_bin(time_ran),3000);
 		function draw_box_around_time_bin(t){return function(){
 			if ((get_active_section()==time_bin_zoom_to_histogram)&&(t==time_ran)){
-				
 				graph.append("rect")
 					.attr("class","emphasis")
 					.attr("x", xScale(time_bin_index))
@@ -1870,6 +1891,7 @@ function time_bin_zoom_to_histogram(){
 					.attr("stroke-width", 1)
 					.attr("stroke", "#000000")
 					.attr("opacity", 1e-6);
+				label_graph("Zoom in on "+orig_t1+" to "+orig_t2+"ms",18);
 
 				graph.select("rect.emphasis")
 					.transition()
@@ -1878,7 +1900,7 @@ function time_bin_zoom_to_histogram(){
 			}
 		}};
 		
-		setTimeout(fade_out_full_data(time_ran),2000);
+		setTimeout(fade_out_full_data(time_ran),4000);
 		function fade_out_full_data(t){return function(){
 			if ((get_active_section()==time_bin_zoom_to_histogram)&&(t==time_ran)){
 				graph.selectAll(".full").transition().duration(1000).attr("opacity", 1e-6).on("end", function(){
@@ -1898,30 +1920,31 @@ function time_bin_zoom_to_histogram(){
 				graph.select("g.bins").attr("class", "initial").attr("opacity", 1e-6);
 			},3);
 		}};
-		
-		setTimeout(zoom_cis_to_fill_axis(time_ran), 4000)
+		var t1,t2, text, orig_t1,orig_t2;
+		binned_data.then(function(data){
+			t1 = data[bin+"_extents"][time_bin_index][0]-500;
+			t2 = data[bin+"_extents"][time_bin_index][1]-500;
+			orig_t1 = t1;
+			orig_t2 = t2;			
+			if ((t1>0)&&(t2>0)){
+				text = "after"
+			} else if ((t1<0)&&(t2<0)){
+				text = "before"
+				t1 *=-1;
+				t2 *=-1
+			}else {
+				text="before/after"
+		}});
+		setTimeout(zoom_cis_to_fill_axis(time_ran), 6000)
 		function zoom_cis_to_fill_axis(t){return function (){
 			if ((get_active_section()==time_bin_zoom_to_histogram)&&(t==time_ran)){
 				//remove x axis ticks
 				graph.selectAll(".x.axis").selectAll(".tick").transition().attr("opacity", 1e-6).duration(1000);
-				var t1,t2, text;
-				binned_data.then(function(data){
-					t1 = data[bin+"_extents"][time_bin_index][0]-500;
-					t2 = data[bin+"_extents"][time_bin_index][1]-500;
-					if ((t1>0)&&(t2>0)){
-						text = "after"
-					} else if ((t1<0)&&(t2<0)){
-						text = "before"
-						t1 *=-1;
-						t2 *=-1
-					}else {
-						text="before/after"
-					}
 				
-					graph.select(".x.label").transition().duration(1000)
-						.text("Time bin "+t1+" to "+t2+"ms "+text+" stimulus is shown")
-						.attr("y", 30);
-				})
+				graph.select(".x.label").transition().duration(1000)
+					.text("Time bin "+t1+" to "+t2+"ms "+text+" stimulus is shown")
+					.attr("y", 30);
+				
 				//expand emphasis box
 				graph.select("rect.emphasis").transition().duration(1000)
 					.attr("x", 0)
@@ -1941,7 +1964,7 @@ function time_bin_zoom_to_histogram(){
 			}
 		}};
 
-		setTimeout(separate_for_hist(time_ran), 7000);
+		setTimeout(separate_for_hist(time_ran), 9000);
 		function separate_for_hist(t){return function (){
 			if ((get_active_section()==time_bin_zoom_to_histogram)&&(t==time_ran)){
 				let duration = 1500;
@@ -1958,11 +1981,12 @@ function time_bin_zoom_to_histogram(){
 					graph.selectAll(".x.axis").selectAll(".tick").selectAll("line").attr("y2",0).attr("opacity", 1e-6)
 					.transition().duration(duration).attr("opacity", 1);
 					
-				},5)
+				},5);
+				label_graph("Split by Stimulus",18);
 			}
 		}}
 
-		setTimeout(rescale_for_hist(time_ran), 8500);
+		setTimeout(rescale_for_hist(time_ran), 10500);
 		function rescale_for_hist(t){return function (){
 			if ((get_active_section()==time_bin_zoom_to_histogram)&&(t==time_ran)){
 				yScale.domain(full_domain);
@@ -1977,7 +2001,7 @@ function time_bin_zoom_to_histogram(){
 			}
 		}}
 
-		setTimeout(draw_the_multi_histogram(time_ran), 10000);
+		setTimeout(draw_the_multi_histogram(time_ran), 12000);
 		function draw_the_multi_histogram(t){return function (){
 			if ((get_active_section()==time_bin_zoom_to_histogram)&&(t==time_ran)){
 				graph.selectAll(".color").transition().duration(2000).attr("width",d=>d.width);
@@ -1987,6 +2011,7 @@ function time_bin_zoom_to_histogram(){
 				graph.select(".slice").selectAll("rect").transition().duration(2000).attr("opacity",1e-6).on("end", function(){
 					this.remove()
 				});
+				label_graph("Count trials for each stimulus for different firing rates",18);
 				graph.selectAll(".x.axis").selectAll(".tick").selectAll("text").transition().duration(2000).attr("opacity", 1);
 				graph.selectAll(".x.axis").selectAll(".tick").selectAll("line").transition().duration(2000).attr("y2",6);
 			}
@@ -2045,11 +2070,11 @@ function draw_full_stimuli_histogram(called_section){
 				});
 		}}}
 
-		setTimeout(display_p_value(time_ran), 10);
+		setTimeout(display_p_value(time_ran), 20);
 		function display_p_value(t){return function(){
 			if ((get_active_section()==called_section)&&(t==time_ran)){
 				anova_data.then(function(data){
-					graph.append("g").attr("class","label");
+					graph.append("g").attr("class","label")
 					let edited_p_val = format_power(data[neuron_a_number][time_bin_index],false, 2);
 					draw_label_with_bounding_box("P-value: "+edited_p_val,
 						20, w*.75, h/4,
@@ -2197,7 +2222,7 @@ function p_value_appear_time_bin(){
 
 		draw_full_stimuli_histogram(p_value_appear_time_bin);
 
-		setTimeout(transition_to_p_value(time_ran), 1500);
+		setTimeout(transition_to_p_value(time_ran), 3000);
 		function transition_to_p_value(time){return function(){
 			if ((get_active_section()==p_value_appear_time_bin)&&(time==time_ran)){
 				xScale = bandScale;
@@ -2212,8 +2237,8 @@ function p_value_appear_time_bin(){
 				graph.selectAll("rect.pval").transition().duration(duration).delay(delay).attr("height", 1)
 					.attr("fill", initial_full).attr("width", xScale.bandwidth())
 					.attr("x", xScale(time_bin_index)).attr("y", h/4);
-				graph.selectAll("text.pval").transition().duration(duration).delay(delay).attr("x", xScale(time_bin_index))
-					.attr("text-anchor", "start").attr("y",h/4).attr("font-size", 1).on("end", function(){
+				graph.selectAll("text.pval").transition().duration(duration).delay(delay).attr("x", xScale(time_bin_index)+0.5*xScale.bandwidth())
+					.attr("y",h/4).attr("font-size", 1).on("end", function(){
 					this.remove();
 				});
 				graph.selectAll(".ci_initial").transition().attr("opacity", 1e-6).duration(duration).on("end", function(){
@@ -2236,7 +2261,7 @@ function p_value_appear_time_bin(){
 				}
 
 		}}}
-		setTimeout(draw_p_value(time_ran), 3500);
+		setTimeout(draw_p_value(time_ran), 5000);
 		function draw_p_value(time){return function(){
 			if ((get_active_section()==p_value_appear_time_bin)&&(time==time_ran)){
 			
@@ -2268,13 +2293,14 @@ function p_value_appear_time_bin(){
 				.attr("stroke", "#EF476F")
 				.attr("fill" ,"#EF476F")
 				.attr("height", 2).attr("opacity", 1e-6).transition().duration(1000).attr("opacity", 1);
-			
+			label_graph("ANOVA p-values for every time bin of neuron A",18);
 		}}};
 
 
-		setTimeout(draw_random_samples(time_ran), 6000);
+		setTimeout(draw_random_samples(time_ran), 7500);
 		function draw_random_samples(time){return function(){
 			if ((get_active_section()==p_value_appear_time_bin)&&(time==time_ran)){
+				label_graph("ANOVA p-values for every time bin of every neuron",18);
 				var shuffled_full = shuffle(full_p_data),
 					sampled_data=first_data;
 				var t = d3.interval(function(elapsed) {
@@ -2369,6 +2395,7 @@ function percent_selective_over_time(){
 			binned_data.then((bin_data)=> draw_x_axis("Time bins before/after stimulus is shown (ms)", "bins", bin_data[bin+"_extents"]));
 			draw_y_axis("P-value of ANOVA", "continous", d=>format_power(d,true));
 			draw_slider("Alpha Value",range(7).map(d=>Math.pow(10, -d)), draw_anova, d=>format_power(d,true));
+			label_graph("ANOVA p-values for every time bin of every neuron",18);
 			graph.append("g")
 				.attr("class","anova")
 				.selectAll("rect")
@@ -2401,6 +2428,7 @@ function percent_selective_over_time(){
 		setTimeout(transition_percents(time_ran), 1000);
 		function transition_percents(t){return function(){
 			if ((get_active_section()==percent_selective_over_time)&&(t==time_ran)){
+				label_graph("Percent of selective neurons at every time bin",18);
 				yScale = yLinearScale;
 				yScale.domain([0,1]);
 				yAxis = d3.axisLeft(yScale);
