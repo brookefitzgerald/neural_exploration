@@ -9,18 +9,7 @@ from .serializers import DataSerializer, FirstBinSerializer, SecondBinSerializer
 
 
 def SpikeDataView(request):
-    zhang_experiment = (
-        apps.get_model("visualize", "Experiment")
-        .objects
-        .filter(slug='zhang'))[0]
-
-    zhang_data = (
-        apps.get_model("visualize", "Site")
-        .objects
-        .filter(experiment=zhang_experiment)
-        .first())
     context = {
-        "data": zhang_data,
         "host": request.META.get('HTTP_HOST')
     }
     return render(request, "visualize/spike.html", context)
