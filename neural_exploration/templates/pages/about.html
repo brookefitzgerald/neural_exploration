@@ -1,8 +1,12 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block content %}
 <div class="container">
-	<p> This website is Brooke Fitzgerald's Divison III thesis project. Brooke is a fourth year student at Hampshire College studying data science and applied mathematics. She is interested in the use of interactivity and modern web technology to facilitate scientific inquiry and exploration. </p>
-	<p> She is also interested in machine learning and data analysis techniques to bring insight to hard problems across disciplines, as well as communicating technical information to a variety of disciplines. </p>
+	<h1 id="about">About This Site</h1>
+	<p> This website is Brooke Fitzgerald's <a target="_blank" href="https://www.hampshire.edu/academics/division-iii">Divison III thesis project</a>. This website explores what neural data is and how we analyze neural data, as well as facilitates an efficient, data-scientific approach to answering neuroscience inquiries. </p> </p>
+	<p> For information about how this website was made and the how the technology it uses works, a writeup of said information is linked below.</p>
+	<a target="_blank" href="https://drive.google.com/file/d/1k38NguvuNfznSNCK2tIUVa_RIVeQl5o9/view?usp=sharing">
+		<img class="center" width="75%" src="{% static 'images/writeup.png' %}"> </img>
+	</a>
 </div>
 {% endblock content %}
