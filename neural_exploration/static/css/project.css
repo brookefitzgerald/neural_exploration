@@ -124,9 +124,12 @@
 	width: calc(100% - 340px);
 	height: 60vh;
 	padding-left: 40px;
+	position: -webkit-sticky;
 	position: sticky;
 	top: 20vh;
 	float: right;
+	left:0;
+  	right:0;
 }
 
 #intro{
