@@ -1,3 +1,3 @@
-FROM abiosoft/caddy:0.10.6
+FROM caddy:2.5.1
 
-COPY ./compose/production/caddy/Caddyfile /etc/Caddyfile
+COPY ./compose/production/caddy/Caddyfile /etc/caddy/Caddyfile
