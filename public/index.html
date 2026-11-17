@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Neural Exploration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" type="image/png" href="static/images/favicon.ico"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="static/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="static/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="static/images/favicon-16x16.png"">
+    <link rel="manifest" href="static/images/manifest.json">
+    <link rel="mask-icon" href="static/images/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+
+    
+    <!-- Latest compiled and minified Bootstrap 4 beta CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+
+    <!-- Your stuff: Third-party CSS libraries go here -->
+    
+    <!-- This file stores project-specific CSS -->
+    <link href="static/css/project.css" rel="stylesheet">
+    
+    
+
+  </head>
+
+  <body>
+
+    <div class="m-b-1">
+      <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand" href="./">Neural Exploration</a>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="./">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about/">About</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+    </div>
+
+    <div class="container">
+
+      	<div class="container" id="container">
+		<div id='graph'>
+			<svg id="graph_svg" width="100%" height="100%">
+				<image id="brain" xlink:href="static/images/brain.svg" height='0' width='0'></image>
+				<image id="neur-image" xlink:href="static/images/neuron.png" width="0" height="0"></image>
+			</svg>
+			<div class="row text-center" id="opt">
+				<div class="col text-center align-middle">
+					<div class="text-center align-middle" id="btn-container"></div>
+					<div class="text-center align-middle" id="btn-text"></div>
+				</div>
+				<div class="col text-center align-middle" id="stimuli-container" width="0" height="0">
+					<svg id="stimuli_svg" width="100%" height="100%">
+						<image id="stimuli" xlink:href="static/images/stimuli.png" width="0" height="0"></image>
+					</svg>
+				</div>
+			</div>
+			<div class="row text-center">
+				<div class="col text-center align-middle" id="btn-label">
+				</div>
+				<div class="col text-center align-middle">
+				</div>
+			</div>
+
+		</div>
+		<div id='sections'>
+			<div class='section' id='intro'>
+				<!-- 0: brain_pulse -->
+				<h1>Exploring neural data visually</h1>
+				<p>We've all wondered how the brain processes information. You may have asked yourself, 'How am I reading this text?'
+				'How can I look at an everyday object like a kiwi and tell what it is?'</p>
+
+				<p>Neuroscientists ask questions like this everyday, and then conduct experiments to figure out the answer.</p>
+
+				<p>This website will explore some common ways that neural data is analyzed in order to figure out how the brain processes information. </p>
+
+				<p>Scroll to learn more.</p>
+			</div>
+			<div class='section'>
+				<!-- 1: zoom_to_neuron -->
+				<h1>What exactly is brain activity?</h1>
+
+				<p>Scientists know more about how the brain works than ever before, but there are still many unanswered questions.</p>
+
+				<p>To answer these questions, neuroscientists measure brain activity.</p>
+
+				<p>The brain is made up of a large number of specialized cells called neurons. Typical neurons consist of a soma (or cell body), dendritic branches (or dendrites) that receives signal from other cells, and an axon that conducts signal away from the cell body to other neurons or to muscles.</p>
+			</div>
+			<div class='section'>
+				<!-- 2: neuron_spike-->
+				<p>When the sum of signals that reach the dendrite from other neurons is larger than some threshold, the neuron "fires" - thus propagating the signal through the neuron’s long axon to reach other neurons.</p>
+
+				<p>This propagation of signal is called an action potential, or spike, and is the basis of all neural communication. A neuron can only fire a single action potential, never a half an action potential, so a spike train that measures when action potentials are fired is only ever 0 or 1. </p>
+			</div>
+			<div class='section'>
+				<!-- 3: single_neuron_spike_train -->
+				<p>Dendrites constantly receive new incoming signals, and therefore the action potentials that the neuron fires create a pattern over time. </p>
+				<p>One way that neuroscientists measure brain activity is by implanting electrodes into the brain that record spikes. This collection of action potentials recorded over time is called a spike train and looks something like this:</p>
+			</div>
+			<div class='section'>
+				<!-- 4: zoom_to_inferior_temporal_cortex -->
+				<h1>The experiment</h1>
+				<p>Many neuroscience experiments try to figure out how the brain works by recording responses to different conditions. The experiment we'll be examining [collected by Ying Zhang in Bob Desimone’s lab in the McGovern Institute at MIT] recorded spikes from 132 neurons in the inferior temporal cortex (a brain region known to be important for visual processing) of a Macaque monkey <a href="https://doi.org/10.1073/pnas.1100999108">[1]</a>.</p>
+
+			</div>
+			<div class='section'>
+				<!--5:show_stimuli -->
+				<p>On each trial, the monkey was presented with one of seven different stimuli: pictures of a guitar, hand, flower, kiwi, couch, face, or car. Each neuron was recorded for 1000 ms, and the stimulus was shown 500 ms after the monkey fixated a spot at the center of a display. </p>
+				<p>Each image was presented around 60 times while the neuron spikes were recorded. </p>
+			</div>
+			<div class='section'>
+				<!--6:bin_average -->
+				<h1>Averaging over time</h1>
+				<p>Now that we have this collection of zeros and ones, we can ask more interesting questions. Namely, what does seeing a kiwi look like in the brain? At what time can our brains tell that we’re looking at a hand? How can we be sure that these zeros and ones aren't just due to chance? </p>
+
+				<p>To present this data a different way, we can look at the average firing rate over an interval of time within each trial.</p>
+			</div>
+			<div class='section'>
+				<!--7:question -->
+				<p>This makes it easier to see how neurons' firing rates differ from each other.</p>
+
+				<p>Some neurons fire all the time, some neurons rarely fire, but how can we tell which neurons are important for our experiment?</p>
+			</div>
+			<div class='section'>
+				<!--8:trial_average -->
+				<h1>Averaging over trials</h1>
+				<p>The first thing we want to do is look at multiple trials.</p>
+				<p>The spike train from one neuron can fire very differently from trial to trial, even when both recordings come from the same stimulus. It's therefore important to look at many recordings from the same neuron to make sure you aren't confusing random activity for activity driven by the stimuli. </p>
+			</div>
+			<div class='section'>
+				<!-- 9: confidence intervals -->
+				<h1>Accounting for variability</h1>
+				<p>If we had data from an infinite number of trials, we would be able to calculate the <i>true</i> average firing rate for each neuron and stimulus perfectly. However, because we only have data from around 60 trials for each stimulus, our estimate of the true average firing rate is most likely slightly off. The colored bands that you see are called 95% confidence intervals, and they are created such that the true average firing rate will be contained in the band 95% of the time.</p>
+				<p>If we have less data, then our confidence intervals have to be larger to capture the <i>true</i> average firing rate 95% of the time. Below you can move the slider to see the mean and confidence intervals change when you use less data. For more information about confidence intervals, see <a href="https://www.mathsisfun.com/data/confidence-interval.html">[2]</a>.</p>
+			</div>
+			<div class='section'>
+				<!-- 10: neuron_average -->
+				<h1>Looking at different neurons</h1>
+				<p>Now that we have a good idea of what the firing rate for one neuron looks like for every stimulus over many different trials, we can now look at the average of many different neurons. </p>
+			</div>
+			<div class='section'>
+				<!-- 11: neuron_magnitude_comparison -->
+				<h1>Comparing neurons</h1>
+				<p>Every neuron responds to stimuli differently. Some neurons naturally fire very often and have a high average firing rate, like neuron A, but other neurons naturally have a much lower average firing rate, like neuron B.  </p>
+				<p>Therefore, to compare these neuron firing rates more effectively, we put them on the same scale - a process called normalization.</p>
+			</div>
+			<div class='section'>
+				<!-- 12: neuron_normalization -->
+				<p> To do this, we calculate the mean and standard deviation of all time bins and trials for each neuron. We then normalize the neuron's activity by subtracting this mean and dividing by this standard deviation. Now instead of plotting average firing rate over time, we plot the deviations away from the average firing rate over time. </p>
+			</div>
+
+			<div class='section'>
+				<!-- 13: neuron_information_comparison -->
+				<h1>Aggregating across neurons</h1>
+				<p>Before when we combined information from multiple trials, we only averaged together the trials when the same stimulus was shown. This allowed us to be able to tell whether or not a neuron responds differently to different stimuli. Similarly, averaging together all neurons would make it difficult for us to tell if the neurons respond differently to different stimuli. </p>
+				
+			</div>
+			<div class='section'>
+				<!-- 14: neuron_average -->
+				<p>For example, neuron A spikes a lot after the guitar and flower stimuli appear, while neuron B spikes more for the couch stimulus but overall less frequently after every stimulus appears. </p>
+				<p>However, if we average the two neurons, then we can no longer distinguish the couch, guitar, or flower stimuli as easily!</p>
+			</div>
+			<div class='section'>
+				<!-- 15: compared_neuron_separation -->
+				<p>We therefore need another way of combining information from different neurons that helps us figure out the answer to our experimental question: how does the brain process and store information about different images?</p>
+			</div>
+			<div class='section'>
+				<!-- 16: time_bin_zoom_to_histogram -->
+				<p>Since we can’t as easily figure out if our experimental condition had an effect from averaging our entire neuron population, we need another technique.</p>
+				<p>As we saw before, the same neuron can respond very differently to multiple exposures to the same stimulus.</p>
+				<p>Thus we will use a statistical method that compares the distribution of average firing rates for each neuron and across every stimulus.</p>
+			</div>
+			<div class='section'>
+				<!-- 17: stimuli_histogram_reveal -->
+				<p>We can then run an ANalysis Of VAriance (ANOVA), a procedure that helps us figure out if the neurons actually respond differently to different stimuli or whether the recorded responses are random fluctuations.</p>
+				<p>More technically, ANOVA computes a statistic that gives us a measure of the likelihood that splitting the trials randomly could explain more of the variation in all of the trials than splitting them by stimuli.</p>
+			</div>
+			<div class='section'>
+				<!-- 18: p_value_appear_time_bin -->
+				<p>We run a separate ANOVA for each time bin and neuron, and get a p-value that gives us the probability of calculating a statistic more extreme than the one observed if the mean firing rate responses were in fact the same for each stimulus. </p>
+				<p>In this analysis, we’re going to set a threshold (called an alpha-level) where we call a neuron "selective" if it has a p-value less than that alpha-level.</p>
+			</div>
+			<div class='section'>
+				<!-- 19: percent_selective_over_time-->
+				<p>A very small p-value indicates that the neuron responded differently to different stimuli.</p>
+				<p> We expect that before the stimulus was shown there is a fraction of neurons equal to the alpha-level that would be called selective by chance.</p>
+				<p>If the fraction of selective neurons is much higher than the alpha-level after the stimulus was shown, that means that the stimuli statistically produced distinctly different neural responses in our experiment. </p>
+			</div>
+			<div class='section'>
+				<!-- 20: decoding_shoutout -->
+				<p>In our ANOVA analysis, we analysed whether the population of neurons was selective by running an ANOVA analysis separately on each neuron. Other approaches, such as neural population decoding, apply a multivariate analysis to look at the population as a whole rather than analyzing each neuron separately <a href="http://www.readout.info/">[3]</a>.</p>
+			</div>
+			<div class='section' id='conclusion'>
+				<!--21: conclusion-->
+				<h1>In conclusion</h1>
+				<p>The brain is complicated, and neuroscientists are still trying to answer basic questions about how the brain works. </p>
+				<p> However, the data analysis techniques explored here can help us understand how long it takes information to propagate throughout the brain, how neurons respond more to certain stimuli than others, and about the proportion of neurons that statistically respond to the experimental conditions.</p>
+				<p> As we continue to collect more data and build better data analysis methods, the more we will improve our understanding of how the brain produces complex behavior.</p> 
+			</div>
+		</div>
+	</div>
+
+    </div> <!-- /container -->
+
+        <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    
+      <!-- Required by Bootstrap v4 beta -->
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+
+      <!-- Your stuff: Third-party javascript libraries go here -->
+
+      <!-- place project specific Javascript in this file -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="static/js/graph-scroll.js"></script>
+<script src="static/js/api.js"></script>
+<script src="static/js/project.js"></script>
+
+  </body>
+</html>

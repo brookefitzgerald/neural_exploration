@@ -106,5 +106,24 @@ See detailed `cookiecutter-django Docker documentation`_.
 
 .. _`cookiecutter-django Docker documentation`: http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html
 
+Static site
+-----------
 
+The site no longer needs Django, Postgres or any server. Everything that is
+served lives in ``public/`` and can be hosted on any static host (GitHub Pages,
+Cloudflare Pages, Netlify, ...) by publishing that directory.
 
+* ``public/index.html`` and ``public/about/index.html`` are the two pages.
+* ``public/static/`` holds the CSS, JavaScript and images.
+* ``public/data/`` holds the pre-computed JSON that replaced the ``/spike/`` API.
+
+To regenerate the JSON from the raw ``.mat`` files (needs ``numpy`` and ``scipy``)::
+
+    $ python utility/export_static_data.py
+
+To preview locally::
+
+    $ python3 -m http.server 8000 --directory public
+
+The Django project in the rest of this repository is the original
+implementation and is kept for reference only.
