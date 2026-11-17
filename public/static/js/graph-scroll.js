@@ -22,9 +22,8 @@
 
     function reposition(){
       var i1 = 0
-      var off = typeof offset === 'function' ? offset() : offset
       sectionPos.forEach(function(d, i){
-        if (d < pageYOffset - containerStart + off) i1 = i
+        if (d < pageYOffset - containerStart + offset) i1 = i
       })
       i1 = Math.min(n - 1, i1)
       // At the very bottom of the page there is nothing left to scroll to.

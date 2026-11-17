@@ -112,7 +112,9 @@
 	padding-top: 50px;
 	padding-bottom: 50px;
 	opacity: .3;
-	height: 720px;
+	/* A minimum, not a fixed height: with a larger browser font size the text
+	   is taller than 720px and would otherwise spill into the next section. */
+	min-height: 720px;
 }
 
 .section#conclusion{
@@ -148,22 +150,9 @@
 	#graph{
 		padding-left: 0px;
 		width: 100%;
-		/* The graph sits on top of the text on narrow screens, so give it a
-		   solid background and let it grow to cover its controls; otherwise
-		   the text scrolls through the chart. */
-		height: auto;
-		margin: 0px auto;
-		top: 0;
-		padding-top: 5vh;
-		background-color: #fff;
-		z-index: 1;
-		/* Extend the white backing sideways to the window edges. */
-		box-shadow: 0 0 0 100vmax #fff;
-		clip-path: inset(0 -100vmax 0 -100vmax);
-	}
-
-	#graph_svg{
 		height: 340px;
+		margin: 0px auto;
+		top: 5vh;
 	}
 
 	#sections{

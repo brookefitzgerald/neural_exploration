@@ -2535,11 +2535,6 @@ d3.graphScroll()
 .graph(d3.selectAll('#graph'))
 .container(d3.select('#container'))
 .sections(d3.selectAll('#sections > div'))
-// On narrow screens the graph covers the top of the window, so activate a
-// section as it enters at the bottom instead of when it nears the top.
-.offset(function(){
-	return window.innerWidth <= 925 ? Math.max(200, window.innerHeight - 370) : 200;
-})
 .on('active', function(i){ 
 	section_animations[i]();
 });
