@@ -1761,7 +1761,7 @@ function draw_multi_hist(starts, ends){
 	.attr("transform", "translate(0,0)"));
 }
 
-function transition_multi_hist_axis(starts, ends, front_x_displacement = null, duration=1000){
+function transition_multi_hist_axis(starts, ends, front_x_displacement = null){
 	front_x_displacement = (typeof front_x_displacement== "undefined")? xScale.invert(w/30): front_x_displacement;
 	var values= flatten(starts.map((start,i)=>[xScale.invert(start+front_x_displacement), xScale.invert((start+ends[i])/2+front_x_displacement)]));
 
@@ -1774,6 +1774,10 @@ function transition_multi_hist_axis(starts, ends, front_x_displacement = null, d
 		.tickValues(values);
 	var transform = "translate(0,0)",
 		y_displacement = 45;
+	// Cancel leftover axis transitions from earlier steps first, so that the
+	// label transition scheduled just below is not cancelled along with them.
+	var axis_g = graph.select("g.x.axis");
+	axis_g.interrupt().selectAll("*").interrupt();
 	if (graph.selectAll('.x.label').text()!="Number of Trials"){
 		graph.selectAll('.x.label')
 			.transition()
@@ -1796,25 +1800,25 @@ function transition_multi_hist_axis(starts, ends, front_x_displacement = null, d
 	}
 	graph.select("g.stimuli_labels").selectAll("text").data(text_data).enter().append("text")
 	.attr("x",d=>d.x).attr("y",h+30).attr("text-anchor","middle").text(d=>d.t).attr("font-size",12);
-	graph.select('.x')
-		.transition()
-		.duration(duration)
-		.call(xAxis)
-		.selection()
+	// Update the axis synchronously rather than through a transition. A
+	// transition only applies its changes on a later animation frame, so the
+	// styling below used to race it: the old ticks from draw_x_axis were still
+	// in the DOM (shifting which ticks counted as "even"), and the transition
+	// then overwrote the widened domain path.
+	axis_g.call(xAxis)
 		.selectAll("text:not(.label)")
 		.attr("transform", transform);
-	setTimeout(function(){
-		graph.select("g.x.axis").transition();
-		let str=graph.select("g.x.axis").select('path.domain').attr("d");
-		graph.select("g.x.axis").select('path.domain').attr("d", str.replace(/H[0-9.]*V/, "H"+w+"V"));
-		let x_ticks = graph.select("g.x.axis").selectAll('g.tick').nodes();
-		for (var i=0; i< x_ticks.length; i++){
-			if (i%2==0){
-				d3.select(x_ticks[i]).select("line").attr("stroke-dasharray", "5, 5").attr("y1", -h).attr("stroke-fill", "#e4e4e4");
-			}
-		}
-	}, duration+10);
-	
+	// Unlike a transition, a plain call does not reset the opacity of reused
+	// ticks, which the zoom section fades out before drawing the histogram.
+	axis_g.selectAll('g.tick').attr("opacity", 1);
+	let str = axis_g.select('path.domain').attr("d");
+	axis_g.select('path.domain').attr("d", str.replace(/H[0-9.]*V/, "H"+w+"V"));
+	// Dash the tick at the start (zero) of each stimulus's histogram.
+	var start_values = values.filter((v,i)=>i%2==0);
+	axis_g.selectAll('g.tick')
+		.filter(d=>start_values.indexOf(d)!=-1)
+		.select("line")
+		.attr("stroke-dasharray", "5, 5").attr("y1", -h).attr("stroke-fill", "#e4e4e4");
 }
 
 function time_bin_zoom_to_histogram(){
@@ -2159,7 +2163,7 @@ function draw_multi_histogram(passed_section, bins, full_domain){
 	xScale = linearScale;
 	xScale.domain([0,d3.sum(Object.values(max_num))]).range([0,w-x_between_offset*ind_to_color_map.length-x_front_offset]);
 	draw_x_axis("Number of Trials", "hist");
-	transition_multi_hist_axis(starting_x_vals, ending_x_vals, x_front_offset,0);
+	transition_multi_hist_axis(starting_x_vals, ending_x_vals, x_front_offset);
 	draw_y_axis("Standard Deviations Away From Mean Firing Rate", "continous");
 	color_bin_data_list = color_bin_list.map(function(bin, bin_ind){
 		var datafied_colors = [];
